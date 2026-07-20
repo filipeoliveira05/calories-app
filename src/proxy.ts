@@ -16,6 +16,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!login|_next/static|_next/image|favicon.ico|manifest.json|icon-192.png|icon-512.png).*)",
+    "/((?!login|api/debug-prisma|_next/static|_next/image|favicon.ico|manifest.json|icon-192.png|icon-512.png).*)",
   ],
 };
