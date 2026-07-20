@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Calories & Protein Tracker
 
-## Getting Started
+Personal single-user app replacing a years-old Excel workflow for tracking calories/protein per meal, body weight, and weekly averages.
 
-First, run the development server:
+Live at: https://calories-app-sigma-three.vercel.app (password-gated)
+
+## Stack
+
+- Next.js (App Router) + TypeScript + Tailwind CSS 4
+- Prisma ORM (`prisma-client` generator, `engineType = "client"` — engine-less, runs entirely through `@prisma/adapter-pg`) against Supabase Postgres
+- Password gate via `src/proxy.ts` (this Next.js's middleware) + HMAC-signed cookie, no full auth system
+- PWA manifest for "Add to Home Screen" (no service worker — install is manual via browser menu, not an automatic prompt)
+- Deployed on Vercel, auto-deploys on push to `main`
+
+## Data model
+
+- `Food` — personal nutrition database (calories/protein per 100g), source of truth, added manually (no CSV import)
+- `MealEntry` — logged meals; snapshots the food's calorie/protein values at creation time so later edits to a `Food` don't retroactively change historical logs
+- `WeightEntry` — one per day, weekly average computed in `src/lib/weeks.ts`
+- `Goals` — single-row daily calorie/protein targets
+
+## Local development
 
 ```bash
+npm install     # triggers `prisma generate` via postinstall
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires a `.env` with `DATABASE_URL`, `DIRECT_URL` (both Supabase connection strings — see below), and `APP_PASSWORD`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Supabase connection strings
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `DATABASE_URL` — transaction pooler (port 6543, `pgbouncer=true&sslmode=no-verify`). Used by the app at runtime via the `pg` adapter. `sslmode=no-verify` is required because Node's `pg` driver treats `sslmode=require` as strict `verify-full` and rejects Supabase's cert chain.
+- `DIRECT_URL` — session/direct connection (port 5432, `sslmode=require`). Used by `prisma.config.ts` for CLI/migrations — the transaction pooler hangs (not errors) on the schema engine's connectivity check.
 
-## Learn More
+## Deployment (Vercel)
 
-To learn more about Next.js, take a look at the following resources:
+Env vars (`DATABASE_URL`, `DIRECT_URL`, `APP_PASSWORD`) are set in the Vercel project dashboard, not committed. `build` runs `prisma generate && next build` explicitly (not just `postinstall`) because Vercel can skip `npm install`/`postinstall` on cached builds when `package-lock.json` is unchanged.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Status
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All core pages (Foods, Today, Weight, Stats, Settings) are built and deployed. Remaining candidate: a service worker for automatic Android install prompts (currently manual "Add to Home Screen" only, which is fine for now).
