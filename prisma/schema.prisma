@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Food {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  caloriesPer100g  Float
+  proteinPer100g   Float
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  mealEntries MealEntry[]
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+model MealEntry {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  mealType  MealType @default(SNACK)
+  grams     Float
+
+  // Snapshot of the food's nutrition values at the time of logging,
+  // so later edits to Food don't retroactively change past entries.
+  foodName        String
+  caloriesPer100g Float
+  proteinPer100g  Float
+
+  foodId String?
+  food   Food?   @relation(fields: [foodId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+model WeightEntry {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  weightKg  Float
+  createdAt DateTime @default(now())
+}
+
+model Goals {
+  id                Int   @id @default(1)
+  dailyCalorieGoal  Float
+  dailyProteinGoal  Float
+}
