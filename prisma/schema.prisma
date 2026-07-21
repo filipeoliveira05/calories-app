@@ -52,6 +52,7 @@ model MealEntry {
   createdAt DateTime @default(now())
 
   @@index([date])
+  @@index([foodId])
 }
 
 model WeightEntry {
