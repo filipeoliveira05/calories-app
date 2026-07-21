@@ -12,7 +12,7 @@ function todayDateOnly() {
 export async function logMeal(formData: FormData) {
   const foodId = String(formData.get("foodId") ?? "");
   const grams = Number(formData.get("grams"));
-  const mealType = String(formData.get("mealType") ?? "SNACK") as MealType;
+  const mealType = String(formData.get("mealType") ?? "BREAKFAST") as MealType;
 
   if (!foodId) throw new Error("Pick a food");
   if (!Number.isFinite(grams) || grams <= 0)

@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, useTransition } from "react";
 import { logMeal } from "./actions";
+import { MEAL_TYPES, MEAL_TYPE_LABELS } from "@/lib/mealTypes";
 
 type Food = {
   id: string;
@@ -9,8 +10,6 @@ type Food = {
   caloriesPer100g: number;
   proteinPer100g: number;
 };
-
-const MEAL_TYPES = ["BREAKFAST", "LUNCH", "DINNER", "SNACK"] as const;
 
 export function LogMealForm({ foods }: { foods: Food[] }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -82,12 +81,12 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
         </select>
         <select
           name="mealType"
-          defaultValue="SNACK"
+          defaultValue="BREAKFAST"
           className="rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
         >
           {MEAL_TYPES.map((type) => (
             <option key={type} value={type}>
-              {type[0] + type.slice(1).toLowerCase()}
+              {MEAL_TYPE_LABELS[type]}
             </option>
           ))}
         </select>

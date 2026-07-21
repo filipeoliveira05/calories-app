@@ -29,15 +29,16 @@ model Food {
 
 enum MealType {
   BREAKFAST
+  MORNING_SNACK
   LUNCH
+  AFTERNOON_SNACK
   DINNER
-  SNACK
 }
 
 model MealEntry {
   id        String   @id @default(cuid())
   date      DateTime @db.Date
-  mealType  MealType @default(SNACK)
+  mealType  MealType @default(BREAKFAST)
   grams     Float
 
   // Snapshot of the food's nutrition values at the time of logging,
