@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { LogMealForm } from "./LogMealForm";
-import { MealEntryRow } from "./MealEntryRow";
+import { MealGroup } from "./MealGroup";
+import { MEAL_TYPES } from "@/lib/mealTypes";
 
 export const dynamic = "force-dynamic";
 
@@ -70,19 +71,28 @@ export default async function TodayPage() {
         <p className="text-sm text-zinc-500">No meals logged today yet.</p>
       ) : (
         <div>
-          {entries.map((entry) => (
-            <MealEntryRow
-              key={entry.id}
-              entry={{
+          {MEAL_TYPES.map((mealType) => {
+            const mealEntries = entries
+              .filter((entry) => entry.mealType === mealType)
+              .map((entry) => ({
                 id: entry.id,
                 foodName: entry.foodName,
                 grams: entry.grams,
                 mealType: entry.mealType,
                 calories: (entry.caloriesPer100g * entry.grams) / 100,
                 protein: (entry.proteinPer100g * entry.grams) / 100,
-              }}
-            />
-          ))}
+              }));
+
+            if (mealEntries.length === 0) return null;
+
+            return (
+              <MealGroup
+                key={mealType}
+                mealType={mealType}
+                entries={mealEntries}
+              />
+            );
+          })}
         </div>
       )}
     </div>

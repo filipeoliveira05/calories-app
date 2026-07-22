@@ -2,7 +2,6 @@
 
 import { useTransition } from "react";
 import { deleteMealEntry } from "./actions";
-import { MEAL_TYPE_LABELS } from "@/lib/mealTypes";
 import type { MealType } from "@/generated/prisma/enums";
 
 type Entry = {
@@ -22,9 +21,6 @@ export function MealEntryRow({ entry }: { entry: Entry }) {
       <div>
         <span className="font-medium">{entry.foodName}</span>
         <span className="ml-2 text-zinc-500">{entry.grams}g</span>
-        <span className="ml-2 text-xs text-zinc-400">
-          {MEAL_TYPE_LABELS[entry.mealType]}
-        </span>
       </div>
       <div className="flex items-center gap-3">
         <span className="text-zinc-600 dark:text-zinc-400">
