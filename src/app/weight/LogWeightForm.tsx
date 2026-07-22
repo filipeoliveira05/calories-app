@@ -47,7 +47,7 @@ export function LogWeightForm() {
         <input
           name="weightKg"
           type="number"
-          step="0.1"
+          step="0.05"
           min="0"
           required
           className="w-28 rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
