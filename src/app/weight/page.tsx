@@ -23,26 +23,25 @@ export default async function WeightPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-semibold">Weight</h1>
+      <h1 className="mb-1 font-display text-2xl font-semibold">Weight</h1>
+      <p className="mb-5 text-sm text-ink-muted">Morning weigh-ins and weekly trend.</p>
 
       <LogWeightForm />
 
       {weeklyAverages.length > 0 && (
-        <div className="mb-6">
-          <h2 className="mb-2 text-sm font-medium text-zinc-500">
+        <div className="mb-5 rounded-2xl bg-surface-raised p-3 shadow-sm">
+          <h2 className="mb-1 px-1 text-xs font-semibold text-ink-muted">
             Weekly average
           </h2>
           {weeklyAverages.map((w) => (
             <div
               key={w.weekStart.toISOString()}
-              className="flex items-center justify-between border-b border-black/5 py-2 text-sm dark:border-white/5"
+              className="flex items-center justify-between border-b border-hairline px-1 py-2 text-sm last:border-b-0"
             >
-              <span className="text-zinc-500">
-                {formatWeekLabel(w.weekStart)}
-              </span>
-              <span className="font-medium">
+              <span className="text-ink-muted">{formatWeekLabel(w.weekStart)}</span>
+              <span className="font-medium tabular-nums">
                 {w.average.toFixed(1)} kg{" "}
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-ink-muted">
                   ({w.count} {w.count === 1 ? "entry" : "entries"})
                 </span>
               </span>
@@ -51,11 +50,11 @@ export default async function WeightPage() {
         </div>
       )}
 
-      <h2 className="mb-2 text-sm font-medium text-zinc-500">History</h2>
+      <h2 className="mb-1 px-1 text-xs font-semibold text-ink-muted">History</h2>
       {entries.length === 0 ? (
-        <p className="text-sm text-zinc-500">No weight entries yet.</p>
+        <p className="text-sm text-ink-muted">No weight entries yet.</p>
       ) : (
-        <div>
+        <div className="rounded-2xl bg-surface-raised p-3 shadow-sm">
           {entries.map((entry) => (
             <WeightEntryRow
               key={entry.id}

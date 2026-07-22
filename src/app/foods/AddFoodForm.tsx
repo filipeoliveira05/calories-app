@@ -3,6 +3,9 @@
 import { useRef, useState, useTransition } from "react";
 import { createFood } from "./actions";
 
+const inputClasses =
+  "w-full rounded-xl border border-hairline bg-bg px-2.5 py-2 text-sm text-ink focus:border-sage focus:outline-none";
+
 export function AddFoodForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -22,51 +25,42 @@ export function AddFoodForm() {
           }
         });
       }}
-      className="mb-6 grid grid-cols-[1fr_5rem_5rem_auto] items-end gap-2"
+      className="mb-5 grid grid-cols-[1fr_4.5rem_4.5rem_auto] items-end gap-2 rounded-2xl bg-surface-raised p-4 shadow-sm"
     >
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-zinc-500">Food name</label>
-        <input
-          name="name"
-          placeholder="e.g. Rice"
-          required
-          className="rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
-        />
+        <label className="text-xs text-ink-muted">Food name</label>
+        <input name="name" placeholder="e.g. Rice" required className={inputClasses} />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-zinc-500">kcal/100g</label>
+        <label className="text-xs text-ink-muted">kcal/100g</label>
         <input
           name="caloriesPer100g"
           type="number"
           step="0.1"
           min="0"
           required
-          className="w-full rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
+          className={inputClasses}
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-zinc-500">protein/100g</label>
+        <label className="text-xs text-ink-muted">protein/100g</label>
         <input
           name="proteinPer100g"
           type="number"
           step="0.1"
           min="0"
           required
-          className="w-full rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
+          className={inputClasses}
         />
       </div>
       <button
         type="submit"
         disabled={isPending}
-        className="rounded bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        className="rounded-xl bg-sage px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
       >
         Add
       </button>
-      {error && (
-        <p className="col-span-4 text-xs text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
+      {error && <p className="col-span-4 text-xs text-danger">{error}</p>}
     </form>
   );
 }

@@ -8,7 +8,8 @@ export default async function SettingsPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-semibold">Settings</h1>
+      <h1 className="mb-1 font-display text-2xl font-semibold">Settings</h1>
+      <p className="mb-5 text-sm text-ink-muted">Your daily calorie and protein targets.</p>
       <GoalsForm
         dailyCalorieGoal={goals?.dailyCalorieGoal ?? null}
         dailyProteinGoal={goals?.dailyProteinGoal ?? null}

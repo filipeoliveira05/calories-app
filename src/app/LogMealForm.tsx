@@ -11,6 +11,9 @@ type Food = {
   proteinPer100g: number;
 };
 
+const inputClasses =
+  "rounded-xl border border-hairline bg-bg px-3 py-2.5 text-sm text-ink focus:border-sage focus:outline-none";
+
 export function LogMealForm({ foods }: { foods: Food[] }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [foodId, setFoodId] = useState("");
@@ -34,9 +37,9 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
 
   if (foods.length === 0) {
     return (
-      <p className="mb-6 text-sm text-zinc-500">
+      <p className="mb-6 rounded-2xl bg-surface-raised p-4 text-sm text-ink-muted shadow-sm">
         You don&apos;t have any foods yet. Add some on the{" "}
-        <a href="/foods" className="underline">
+        <a href="/foods" className="text-sage underline">
           Foods
         </a>{" "}
         page first.
@@ -60,7 +63,7 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
           }
         });
       }}
-      className="mb-6 flex flex-col gap-2 rounded-lg border border-black/10 p-3 dark:border-white/10"
+      className="mb-6 flex flex-col gap-2.5 rounded-2xl bg-surface-raised p-4 shadow-sm"
     >
       <div className="grid grid-cols-2 gap-2">
         <select
@@ -68,7 +71,7 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
           value={foodId}
           onChange={(e) => setFoodId(e.target.value)}
           required
-          className="rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
+          className={inputClasses}
         >
           <option value="" disabled>
             Select food
@@ -82,7 +85,7 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
         <select
           name="mealType"
           defaultValue="BREAKFAST"
-          className="rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
+          className={inputClasses}
         >
           {MEAL_TYPES.map((type) => (
             <option key={type} value={type}>
@@ -101,11 +104,11 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
           value={grams}
           onChange={(e) => setGrams(e.target.value)}
           required
-          className="w-28 rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
+          className={`w-24 ${inputClasses}`}
         />
-        <span className="text-sm text-zinc-500">g</span>
+        <span className="text-sm text-ink-muted">g</span>
         {preview && (
-          <span className="text-sm text-zinc-500">
+          <span className="text-sm text-ink-muted">
             → {preview.calories.toFixed(0)} kcal, {preview.protein.toFixed(1)}{" "}
             g protein
           </span>
@@ -113,14 +116,12 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
         <button
           type="submit"
           disabled={isPending}
-          className="ml-auto rounded bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+          className="ml-auto rounded-xl bg-sage px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
         >
           Log
         </button>
       </div>
-      {error && (
-        <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
-      )}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </form>
   );
 }

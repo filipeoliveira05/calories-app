@@ -29,17 +29,16 @@ export function MealGroup({
 
   return (
     <div className="mb-4">
-      <div className="mb-1 flex items-baseline justify-between">
-        <h2 className="text-sm font-semibold">{MEAL_TYPE_LABELS[mealType]}</h2>
-        <span className="text-xs text-zinc-500">
-          {totals.calories.toFixed(0)} kcal · {totals.protein.toFixed(1)}g
-          protein
-        </span>
+      <div className="ml-3 inline-block rounded-t-lg bg-surface-raised px-3 py-1 text-xs font-semibold text-ink-muted">
+        {MEAL_TYPE_LABELS[mealType]}
       </div>
-      <div>
+      <div className="rounded-2xl rounded-tl-none bg-surface-raised p-3 shadow-sm">
         {entries.map((entry) => (
           <MealEntryRow key={entry.id} entry={entry} />
         ))}
+        <div className="flex justify-end border-t border-hairline pt-2 text-xs text-ink-muted">
+          {totals.calories.toFixed(0)} kcal · {totals.protein.toFixed(1)}g protein
+        </div>
       </div>
     </div>
   );

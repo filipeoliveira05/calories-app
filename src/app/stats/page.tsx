@@ -68,9 +68,10 @@ export default async function StatsPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-semibold">Stats</h1>
+      <h1 className="mb-1 font-display text-2xl font-semibold">Stats</h1>
+      <p className="mb-5 text-sm text-ink-muted">Weekly averages against your goals.</p>
       {chartData.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-ink-muted">
           Log some meals and weight entries to see weekly trends here.
         </p>
       ) : (

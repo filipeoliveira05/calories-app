@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Karla } from "next/font/google";
 import { NavBar } from "@/components/NavBar";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  axes: ["opsz", "SOFT"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const karla = Karla({
+  variable: "--font-karla",
   subsets: ["latin"],
 });
 
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#18181b",
+  themeColor: "#1a1712",
 };
 
 export default function RootLayout({
@@ -43,13 +44,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${karla.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black">
-        <NavBar />
-        <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
+      <body className="min-h-full flex flex-col bg-bg text-ink">
+        <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-6 pb-28">
           {children}
         </main>
+        <NavBar />
       </body>
     </html>
   );

@@ -3,6 +3,9 @@
 import { useState, useTransition } from "react";
 import { saveGoals } from "./actions";
 
+const inputClasses =
+  "rounded-xl border border-hairline bg-bg px-3 py-2.5 text-sm text-ink focus:border-sage focus:outline-none";
+
 export function GoalsForm({
   dailyCalorieGoal,
   dailyProteinGoal,
@@ -28,10 +31,10 @@ export function GoalsForm({
           }
         });
       }}
-      className="flex max-w-xs flex-col gap-3"
+      className="flex max-w-xs flex-col gap-3 rounded-2xl bg-surface-raised p-4 shadow-sm"
     >
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-zinc-500">Daily calorie goal</label>
+        <label className="text-xs text-ink-muted">Daily calorie goal</label>
         <input
           name="dailyCalorieGoal"
           type="number"
@@ -39,11 +42,11 @@ export function GoalsForm({
           min="0"
           defaultValue={dailyCalorieGoal ?? ""}
           required
-          className="rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
+          className={inputClasses}
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-zinc-500">Daily protein goal (g)</label>
+        <label className="text-xs text-ink-muted">Daily protein goal (g)</label>
         <input
           name="dailyProteinGoal"
           type="number"
@@ -51,22 +54,18 @@ export function GoalsForm({
           min="0"
           defaultValue={dailyProteinGoal ?? ""}
           required
-          className="rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
+          className={inputClasses}
         />
       </div>
       <button
         type="submit"
         disabled={isPending}
-        className="rounded bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        className="rounded-xl bg-sage px-3 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         Save
       </button>
-      {saved && !error && (
-        <p className="text-xs text-green-600 dark:text-green-400">Saved.</p>
-      )}
-      {error && (
-        <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
-      )}
+      {saved && !error && <p className="text-xs text-sage">Saved.</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </form>
   );
 }

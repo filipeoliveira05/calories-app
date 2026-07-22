@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { LogMealForm } from "./LogMealForm";
 import { MealGroup } from "./MealGroup";
 import { MEAL_TYPES } from "@/lib/mealTypes";
+import { ProgressRing } from "@/components/ProgressRing";
 
 export const dynamic = "force-dynamic";
 
@@ -31,44 +32,37 @@ export default async function TodayPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-semibold">Today</h1>
+      <h1 className="mb-1 font-display text-2xl font-semibold">Today</h1>
+      <p className="mb-5 text-sm text-ink-muted">
+        {new Date().toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+        })}
+      </p>
+
+      <div className="mb-5 rounded-2xl bg-surface-raised p-4 shadow-sm">
+        <ProgressRing
+          calories={totals.calories}
+          calorieGoal={goals?.dailyCalorieGoal ?? null}
+          protein={totals.protein}
+          proteinGoal={goals?.dailyProteinGoal ?? null}
+        />
+        {!goals && (
+          <p className="mt-3 text-xs text-ink-muted">
+            Set daily goals on the{" "}
+            <a href="/settings" className="underline">
+              Settings
+            </a>{" "}
+            page to see progress here.
+          </p>
+        )}
+      </div>
 
       <LogMealForm foods={foods} />
 
-      <div className="mb-4 flex gap-4 rounded-lg border border-black/10 p-3 text-sm dark:border-white/10">
-        <div>
-          <span className="text-zinc-500">Calories: </span>
-          <span className="font-semibold">{totals.calories.toFixed(0)}</span>
-          {goals && (
-            <span className="text-zinc-400">
-              {" "}
-              / {goals.dailyCalorieGoal.toFixed(0)}
-            </span>
-          )}
-        </div>
-        <div>
-          <span className="text-zinc-500">Protein: </span>
-          <span className="font-semibold">{totals.protein.toFixed(1)} g</span>
-          {goals && (
-            <span className="text-zinc-400">
-              {" "}
-              / {goals.dailyProteinGoal.toFixed(0)} g
-            </span>
-          )}
-        </div>
-      </div>
-      {!goals && (
-        <p className="mb-4 text-xs text-zinc-400">
-          Set daily goals on the{" "}
-          <a href="/settings" className="underline">
-            Settings
-          </a>{" "}
-          page to see progress here.
-        </p>
-      )}
-
       {entries.length === 0 ? (
-        <p className="text-sm text-zinc-500">No meals logged today yet.</p>
+        <p className="text-sm text-ink-muted">No meals logged today yet.</p>
       ) : (
         <div>
           {MEAL_TYPES.map((mealType) => {

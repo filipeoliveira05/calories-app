@@ -9,16 +9,18 @@ export default async function FoodsPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-semibold">Foods</h1>
+      <h1 className="mb-1 font-display text-2xl font-semibold">Foods</h1>
+      <p className="mb-5 text-sm text-ink-muted">Your personal nutrition database, per 100g.</p>
+
       <AddFoodForm />
 
       {foods.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-ink-muted">
           No foods yet — add your first one above.
         </p>
       ) : (
-        <div>
-          <div className="grid grid-cols-[1fr_5rem_5rem_auto] gap-2 border-b border-black/10 pb-1 text-xs font-medium text-zinc-500 dark:border-white/10">
+        <div className="rounded-2xl bg-surface-raised p-3 shadow-sm">
+          <div className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] gap-2 border-b border-hairline pb-2 text-xs font-medium text-ink-muted">
             <span>Name</span>
             <span>Calories</span>
             <span>Protein</span>

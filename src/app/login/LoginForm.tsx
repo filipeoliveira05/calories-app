@@ -9,31 +9,27 @@ export function LoginForm({ next }: { next: string }) {
   return (
     <form
       action={formAction}
-      className="flex w-full max-w-xs flex-col gap-3"
+      className="flex w-full max-w-xs flex-col gap-3 rounded-2xl bg-surface-raised p-4 shadow-sm"
     >
       <input type="hidden" name="next" value={next} />
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-zinc-500">Password</label>
+        <label className="text-xs text-ink-muted">Password</label>
         <input
           name="password"
           type="password"
           autoFocus
           required
-          className="rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
+          className="rounded-xl border border-hairline bg-bg px-3 py-2.5 text-sm text-ink focus:border-sage focus:outline-none"
         />
       </div>
       <button
         type="submit"
         disabled={isPending}
-        className="rounded bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        className="rounded-xl bg-sage px-3 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         Sign in
       </button>
-      {state?.error && (
-        <p className="text-xs text-red-600 dark:text-red-400">
-          {state.error}
-        </p>
-      )}
+      {state?.error && <p className="text-xs text-danger">{state.error}</p>}
     </form>
   );
 }

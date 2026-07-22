@@ -10,6 +10,9 @@ type Food = {
   proteinPer100g: number;
 };
 
+const inputClasses =
+  "w-full rounded-lg border border-hairline bg-bg px-2 py-1 text-sm text-ink focus:border-sage focus:outline-none";
+
 export function FoodRow({ food }: { food: Food }) {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,14 +32,9 @@ export function FoodRow({ food }: { food: Food }) {
             }
           });
         }}
-        className="grid grid-cols-[1fr_5rem_5rem_auto] items-center gap-2 border-b border-black/5 py-2 dark:border-white/5"
+        className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 last:border-b-0"
       >
-        <input
-          name="name"
-          defaultValue={food.name}
-          required
-          className="rounded border border-zinc-300 bg-transparent px-2 py-1 text-sm dark:border-zinc-700"
-        />
+        <input name="name" defaultValue={food.name} required className={inputClasses} />
         <input
           name="caloriesPer100g"
           type="number"
@@ -44,7 +42,7 @@ export function FoodRow({ food }: { food: Food }) {
           min="0"
           defaultValue={food.caloriesPer100g}
           required
-          className="w-full rounded border border-zinc-300 bg-transparent px-2 py-1 text-sm dark:border-zinc-700"
+          className={inputClasses}
         />
         <input
           name="proteinPer100g"
@@ -53,46 +51,38 @@ export function FoodRow({ food }: { food: Food }) {
           min="0"
           defaultValue={food.proteinPer100g}
           required
-          className="w-full rounded border border-zinc-300 bg-transparent px-2 py-1 text-sm dark:border-zinc-700"
+          className={inputClasses}
         />
         <div className="flex gap-1">
           <button
             type="submit"
             disabled={isPending}
-            className="rounded bg-zinc-900 px-2 py-1 text-xs font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+            className="rounded-lg bg-sage px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
           >
             Save
           </button>
           <button
             type="button"
             onClick={() => setEditing(false)}
-            className="rounded px-2 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400"
+            className="rounded-lg px-2 py-1 text-xs font-medium text-ink-muted"
           >
             Cancel
           </button>
         </div>
-        {error && (
-          <p className="col-span-4 text-xs text-red-600 dark:text-red-400">
-            {error}
-          </p>
-        )}
+        {error && <p className="col-span-4 text-xs text-danger">{error}</p>}
       </form>
     );
   }
 
   return (
-    <div className="grid grid-cols-[1fr_5rem_5rem_auto] items-center gap-2 border-b border-black/5 py-2 text-sm dark:border-white/5">
+    <div className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 text-sm last:border-b-0">
       <span className="font-medium">{food.name}</span>
-      <span className="text-zinc-600 dark:text-zinc-400">
-        {food.caloriesPer100g} kcal
-      </span>
-      <span className="text-zinc-600 dark:text-zinc-400">
-        {food.proteinPer100g} g
-      </span>
+      <span className="tabular-nums text-ink-muted">{food.caloriesPer100g} kcal</span>
+      <span className="tabular-nums text-ink-muted">{food.proteinPer100g} g</span>
       <div className="flex gap-1">
         <button
           onClick={() => setEditing(true)}
-          className="rounded px-2 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+          className="rounded-lg px-2 py-1 text-xs font-medium text-ink-muted hover:bg-surface"
         >
           Edit
         </button>
@@ -103,7 +93,7 @@ export function FoodRow({ food }: { food: Food }) {
             }
           }}
           disabled={isPending}
-          className="rounded px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-950/30"
+          className="rounded-lg px-2 py-1 text-xs font-medium text-danger hover:bg-terracotta-soft disabled:opacity-50"
         >
           Delete
         </button>
