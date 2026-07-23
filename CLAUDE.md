@@ -10,7 +10,7 @@ This app replaces a years-old manual Excel workflow for tracking gym nutrition p
 
 The app is a personal, single-user tool (password-gated, no multi-user auth). Full stack/architecture details, data model, and deployment notes live in `README.md` — read it for specifics rather than duplicating here.
 
-**Status**: as of 2026-07-23, all core pages (Foods, Today, Weight, Stats, Settings) are built and deployed to Vercel, with the warm dark-first redesign applied and several rounds of UX polish since (meal-type grouping on Today, weekly weigh-in breakdowns and custom date-range filtering on Stats, alignment/cursor/theming fixes). Treat this as a working, deployed app, not a WIP — check git history before assuming something is unbuilt, since each commit corresponds to one feature area with a detailed message.
+**Status**: as of 2026-07-23, all core pages (Foods, Today, Weight, Stats, Settings) are built and deployed to Vercel, with the warm dark-first redesign applied and several rounds of UX polish since (meal-type grouping on Today, weekly weigh-in breakdowns and custom date-range filtering on Stats, alignment/cursor/theming fixes). Most recent session added: inline gram editing on Today's logged entries, food categories (`FoodCategory` enum, filterable on the Foods page, grouped in Today's food picker), opt-in unit-based logging for foods that are counted rather than weighed (e.g. "2 yogurts" instead of grams), and quick range presets (last month/3 months/year) on Stats. Treat this as a working, deployed app, not a WIP — check git history before assuming something is unbuilt, since each commit corresponds to one feature area with a detailed message.
 
 # Design system
 
