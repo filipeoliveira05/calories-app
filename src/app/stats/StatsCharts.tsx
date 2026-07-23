@@ -109,6 +109,19 @@ function Chart({
 const inputClasses =
   "rounded-xl border border-hairline bg-bg px-2 py-1 text-sm text-ink focus:border-sage focus:outline-none";
 
+const RANGE_PRESETS = [
+  { label: "Last month", days: 30 },
+  { label: "Last 3 months", days: 90 },
+  { label: "Last year", days: 365 },
+];
+
+function daysAgo(days: number, minDate: string): string {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - days);
+  const iso = d.toISOString().slice(0, 10);
+  return iso < minDate ? minDate : iso;
+}
+
 export function StatsCharts({ data }: { data: WeekPoint[] }) {
   const minDate = data[0].weekStart;
   const maxDate = data[data.length - 1].weekStart;
@@ -122,6 +135,26 @@ export function StatsCharts({ data }: { data: WeekPoint[] }) {
 
   return (
     <div>
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {RANGE_PRESETS.map((preset) => {
+          const presetFrom = daysAgo(preset.days, minDate);
+          const isActive = from === presetFrom && to === maxDate;
+          return (
+            <button
+              key={preset.label}
+              onClick={() => {
+                setFrom(presetFrom);
+                setTo(maxDate);
+              }}
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                isActive ? "bg-sage text-white" : "bg-surface-raised text-ink-muted"
+              }`}
+            >
+              {preset.label}
+            </button>
+          );
+        })}
+      </div>
       <div className="mb-4 flex items-center gap-2 text-sm">
         <label className="flex items-center gap-1.5 text-ink-muted">
           From
