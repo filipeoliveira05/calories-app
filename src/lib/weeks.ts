@@ -12,13 +12,15 @@ export function getWeekStart(date: Date): Date {
 export function formatWeekLabel(weekStart: Date): string {
   const weekEnd = new Date(weekStart);
   weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
-  const fmt = (d: Date) =>
+  const sameYear = weekStart.getUTCFullYear() === weekEnd.getUTCFullYear();
+  const fmt = (d: Date, withYear: boolean) =>
     d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
+      year: withYear ? "numeric" : undefined,
       timeZone: "UTC",
     });
-  return `${fmt(weekStart)} – ${fmt(weekEnd)}`;
+  return `${fmt(weekStart, !sameYear)} – ${fmt(weekEnd, true)}`;
 }
 
 export function groupByWeek<T>(
