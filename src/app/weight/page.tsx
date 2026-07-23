@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { getWeekStart, formatWeekLabel, groupByWeek } from "@/lib/weeks";
+import { groupByWeek } from "@/lib/weeks";
 import { LogWeightForm } from "./LogWeightForm";
 import { WeightEntryRow } from "./WeightEntryRow";
+import { WeeklyAverageRow } from "./WeeklyAverageRow";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ export default async function WeightPage() {
       average:
         weekEntries.reduce((sum, e) => sum + e.weightKg, 0) /
         weekEntries.length,
-      count: weekEntries.length,
+      days: weekEntries.map((e) => ({ date: e.date, weightKg: e.weightKg })),
     }))
     .sort((a, b) => b.weekStart.getTime() - a.weekStart.getTime());
 
@@ -34,18 +35,12 @@ export default async function WeightPage() {
             Weekly average
           </h2>
           {weeklyAverages.map((w) => (
-            <div
+            <WeeklyAverageRow
               key={w.weekStart.toISOString()}
-              className="flex items-center justify-between border-b border-hairline px-1 py-2 text-sm last:border-b-0"
-            >
-              <span className="text-ink-muted">{formatWeekLabel(w.weekStart)}</span>
-              <span className="font-medium tabular-nums">
-                {w.average.toFixed(1)} kg{" "}
-                <span className="text-xs text-ink-muted">
-                  ({w.count} {w.count === 1 ? "entry" : "entries"})
-                </span>
-              </span>
-            </div>
+              weekStart={w.weekStart}
+              average={w.average}
+              days={w.days}
+            />
           ))}
         </div>
       )}

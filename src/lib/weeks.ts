@@ -23,6 +23,15 @@ export function formatWeekLabel(weekStart: Date): string {
   return `${fmt(weekStart, !sameYear)} – ${fmt(weekEnd, true)}`;
 }
 
+export function formatDayLabel(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export function groupByWeek<T>(
   items: T[],
   getDate: (item: T) => Date,
