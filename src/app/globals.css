@@ -65,3 +65,7 @@ body {
 * {
   border-color: var(--color-hairline);
 }
+
+button:not(:disabled) {
+  cursor: pointer;
+}
