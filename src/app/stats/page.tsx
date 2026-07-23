@@ -61,6 +61,7 @@ export default async function StatsPage() {
 
   const chartData = weeklyStats.map((w) => ({
     week: formatWeekLabel(w.weekStart),
+    weekStart: w.weekStart.toISOString().slice(0, 10),
     calories: w.avgCalories !== null ? Math.round(w.avgCalories) : null,
     protein: w.avgProtein !== null ? Math.round(w.avgProtein * 10) / 10 : null,
     weight: w.avgWeight !== null ? Math.round(w.avgWeight * 10) / 10 : null,

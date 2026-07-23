@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -12,6 +13,7 @@ import {
 
 type WeekPoint = {
   week: string;
+  weekStart: string;
   calories: number | null;
   protein: number | null;
   weight: number | null;
@@ -67,12 +69,66 @@ function Chart({
   );
 }
 
+const inputClasses =
+  "rounded-xl border border-hairline bg-bg px-2 py-1 text-sm text-ink focus:border-sage focus:outline-none";
+
 export function StatsCharts({ data }: { data: WeekPoint[] }) {
+  const minDate = data[0].weekStart;
+  const maxDate = data[data.length - 1].weekStart;
+  const [from, setFrom] = useState(minDate);
+  const [to, setTo] = useState(maxDate);
+
+  const filtered = useMemo(
+    () => data.filter((d) => d.weekStart >= from && d.weekStart <= to),
+    [data, from, to],
+  );
+
   return (
     <div>
-      <Chart title="Weekly avg calories" data={data} dataKey="calories" color="var(--color-sage)" unit="kcal" />
-      <Chart title="Weekly avg protein" data={data} dataKey="protein" color="var(--color-terracotta)" unit="g" />
-      <Chart title="Weekly avg weight" data={data} dataKey="weight" color="var(--color-gold)" unit="kg" />
+      <div className="mb-4 flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-1.5 text-ink-muted">
+          From
+          <input
+            type="date"
+            value={from}
+            min={minDate}
+            max={to}
+            onChange={(e) => setFrom(e.target.value)}
+            className={inputClasses}
+          />
+        </label>
+        <label className="flex items-center gap-1.5 text-ink-muted">
+          To
+          <input
+            type="date"
+            value={to}
+            min={from}
+            max={maxDate}
+            onChange={(e) => setTo(e.target.value)}
+            className={inputClasses}
+          />
+        </label>
+        {(from !== minDate || to !== maxDate) && (
+          <button
+            onClick={() => {
+              setFrom(minDate);
+              setTo(maxDate);
+            }}
+            className="text-xs font-medium text-ink-muted hover:underline"
+          >
+            Reset
+          </button>
+        )}
+      </div>
+      {filtered.length === 0 ? (
+        <p className="text-sm text-ink-muted">No data in this range.</p>
+      ) : (
+        <>
+          <Chart title="Weekly avg calories" data={filtered} dataKey="calories" color="var(--color-sage)" unit="kcal" />
+          <Chart title="Weekly avg protein" data={filtered} dataKey="protein" color="var(--color-terracotta)" unit="g" />
+          <Chart title="Weekly avg weight" data={filtered} dataKey="weight" color="var(--color-gold)" unit="kg" />
+        </>
+      )}
     </div>
   );
 }
