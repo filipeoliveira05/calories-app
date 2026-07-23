@@ -19,6 +19,21 @@ type WeekPoint = {
   weight: number | null;
 };
 
+const LONG_RANGE_DAYS = 180;
+
+function formatTick(iso: string, longRange: boolean, multiYear: boolean): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  if (longRange) {
+    return d.toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+  }
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: multiYear ? "numeric" : undefined,
+    timeZone: "UTC",
+  });
+}
+
 function Chart({
   title,
   data,
@@ -32,21 +47,43 @@ function Chart({
   color: string;
   unit: string;
 }) {
+  const maxTicks = 5;
+  const tickCount = Math.min(maxTicks, data.length);
+  const tickIndices = new Set(
+    tickCount <= 1
+      ? [0]
+      : Array.from({ length: tickCount }, (_, i) =>
+          Math.round((i * (data.length - 1)) / (tickCount - 1)),
+        ),
+  );
+  const ticks = [...tickIndices].sort((a, b) => a - b).map((i) => data[i].weekStart);
+
+  const firstDate = new Date(`${data[0].weekStart}T00:00:00Z`);
+  const lastDate = new Date(`${data[data.length - 1].weekStart}T00:00:00Z`);
+  const rangeDays = (lastDate.getTime() - firstDate.getTime()) / 86_400_000;
+  const longRange = rangeDays > LONG_RANGE_DAYS;
+  const multiYear = firstDate.getUTCFullYear() !== lastDate.getUTCFullYear();
+  const weekByStart = new Map(data.map((d) => [d.weekStart, d.week]));
+
   return (
     <div className="mb-4 rounded-2xl bg-surface-raised p-4 shadow-sm">
       <h2 className="mb-2 text-xs font-semibold text-ink-muted">{title}</h2>
       <div className="h-52 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+          <LineChart data={data} margin={{ top: 5, right: 24, left: -10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-hairline)" />
             <XAxis
-              dataKey="week"
+              dataKey="weekStart"
               tick={{ fontSize: 11, fill: "var(--color-ink-muted)" }}
-              interval="preserveStartEnd"
+              ticks={ticks}
+              interval={0}
+              tickMargin={8}
+              tickFormatter={(value) => formatTick(value, longRange, multiYear)}
             />
             <YAxis tick={{ fontSize: 11, fill: "var(--color-ink-muted)" }} domain={["auto", "auto"]} />
             <Tooltip
               formatter={(value) => [`${value} ${unit}`, title]}
+              labelFormatter={(label) => weekByStart.get(label) ?? label}
               contentStyle={{
                 fontSize: 12,
                 background: "var(--color-surface-raised)",
