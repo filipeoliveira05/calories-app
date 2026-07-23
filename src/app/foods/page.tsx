@@ -21,10 +21,13 @@ export default async function FoodsPage() {
       ) : (
         <div className="rounded-2xl bg-surface-raised p-3 shadow-sm">
           <div className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] gap-2 border-b border-hairline pb-2 text-xs font-medium text-ink-muted">
-            <span>Name</span>
+            <span className="min-w-0 truncate">Name</span>
             <span>Calories</span>
             <span>Protein</span>
-            <span />
+            <div className="invisible flex gap-1" aria-hidden>
+              <button className="rounded-lg px-2 py-1 text-xs font-medium">Edit</button>
+              <button className="rounded-lg px-2 py-1 text-xs font-medium">Delete</button>
+            </div>
           </div>
           {foods.map((food) => (
             <FoodRow key={food.id} food={food} />

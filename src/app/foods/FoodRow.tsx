@@ -34,7 +34,7 @@ export function FoodRow({ food }: { food: Food }) {
         }}
         className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 last:border-b-0"
       >
-        <input name="name" defaultValue={food.name} required className={inputClasses} />
+        <input name="name" defaultValue={food.name} required className={`min-w-0 ${inputClasses}`} />
         <input
           name="caloriesPer100g"
           type="number"
@@ -76,7 +76,7 @@ export function FoodRow({ food }: { food: Food }) {
 
   return (
     <div className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 text-sm last:border-b-0">
-      <span className="font-medium">{food.name}</span>
+      <span className="min-w-0 truncate font-medium">{food.name}</span>
       <span className="tabular-nums text-ink-muted">{food.caloriesPer100g} kcal</span>
       <span className="tabular-nums text-ink-muted">{food.proteinPer100g} g</span>
       <div className="flex gap-1">
