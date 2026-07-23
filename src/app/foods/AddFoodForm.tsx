@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { createFood } from "./actions";
+import { FOOD_CATEGORIES, FOOD_CATEGORY_LABELS } from "@/lib/foodCategories";
 
 const inputClasses =
   "w-full rounded-xl border border-hairline bg-bg px-2.5 py-2 text-sm text-ink focus:border-sage focus:outline-none";
@@ -25,11 +26,21 @@ export function AddFoodForm() {
           }
         });
       }}
-      className="mb-5 grid grid-cols-[1fr_4.5rem_4.5rem_auto] items-end gap-2 rounded-2xl bg-surface-raised p-4 shadow-sm"
+      className="mb-5 grid grid-cols-[1fr_6.5rem_4.5rem_4.5rem_auto] items-end gap-2 rounded-2xl bg-surface-raised p-4 shadow-sm"
     >
       <div className="flex flex-col gap-1">
         <label className="text-xs text-ink-muted">Food name</label>
         <input name="name" placeholder="e.g. Rice" required className={inputClasses} />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-ink-muted">Category</label>
+        <select name="category" defaultValue={FOOD_CATEGORIES[0]} className={inputClasses}>
+          {FOOD_CATEGORIES.map((category) => (
+            <option key={category} value={category}>
+              {FOOD_CATEGORY_LABELS[category]}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="flex flex-col gap-1">
         <label className="text-xs text-ink-muted">kcal/100g</label>
@@ -60,7 +71,7 @@ export function AddFoodForm() {
       >
         Add
       </button>
-      {error && <p className="col-span-4 text-xs text-danger">{error}</p>}
+      {error && <p className="col-span-5 text-xs text-danger">{error}</p>}
     </form>
   );
 }

@@ -3,12 +3,15 @@
 import { useMemo, useRef, useState, useTransition } from "react";
 import { logMeal } from "./actions";
 import { MEAL_TYPES, MEAL_TYPE_LABELS } from "@/lib/mealTypes";
+import { FOOD_CATEGORIES, FOOD_CATEGORY_LABELS } from "@/lib/foodCategories";
+import type { FoodCategory } from "@/generated/prisma/enums";
 
 type Food = {
   id: string;
   name: string;
   caloriesPer100g: number;
   proteinPer100g: number;
+  category: FoodCategory;
 };
 
 const inputClasses =
@@ -25,6 +28,13 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
     () => foods.find((f) => f.id === foodId) ?? null,
     [foods, foodId],
   );
+
+  const foodsByCategory = useMemo(() => {
+    return FOOD_CATEGORIES.map((category) => ({
+      category,
+      foods: foods.filter((f) => f.category === category),
+    })).filter((group) => group.foods.length > 0);
+  }, [foods]);
 
   const gramsNum = Number(grams);
   const preview =
@@ -76,10 +86,14 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
           <option value="" disabled>
             Select food
           </option>
-          {foods.map((food) => (
-            <option key={food.id} value={food.id}>
-              {food.name}
-            </option>
+          {foodsByCategory.map(({ category, foods }) => (
+            <optgroup key={category} label={FOOD_CATEGORY_LABELS[category]}>
+              {foods.map((food) => (
+                <option key={food.id} value={food.id}>
+                  {food.name}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
         <select

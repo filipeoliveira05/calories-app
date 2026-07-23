@@ -16,13 +16,27 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum FoodCategory {
+  PROTEIN
+  CARBS
+  LEGUME
+  DAIRY
+  FRUIT
+  VEGETABLE
+  FAT_OIL
+  SWEETS
+  SNACK
+  OTHER
+}
+
 model Food {
-  id               String   @id @default(cuid())
-  name             String   @unique
+  id               String       @id @default(cuid())
+  name             String       @unique
   caloriesPer100g  Float
   proteinPer100g   Float
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  category         FoodCategory @default(OTHER)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   mealEntries MealEntry[]
 }

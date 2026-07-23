@@ -2,12 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { updateFood, deleteFood } from "./actions";
+import { FOOD_CATEGORIES, FOOD_CATEGORY_LABELS } from "@/lib/foodCategories";
+import type { FoodCategory } from "@/generated/prisma/enums";
 
 type Food = {
   id: string;
   name: string;
   caloriesPer100g: number;
   proteinPer100g: number;
+  category: FoodCategory;
 };
 
 const inputClasses =
@@ -32,9 +35,16 @@ export function FoodRow({ food }: { food: Food }) {
             }
           });
         }}
-        className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 last:border-b-0"
+        className="grid grid-cols-[1fr_6.5rem_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 last:border-b-0"
       >
         <input name="name" defaultValue={food.name} required className={`min-w-0 ${inputClasses}`} />
+        <select name="category" defaultValue={food.category} className={inputClasses}>
+          {FOOD_CATEGORIES.map((category) => (
+            <option key={category} value={category}>
+              {FOOD_CATEGORY_LABELS[category]}
+            </option>
+          ))}
+        </select>
         <input
           name="caloriesPer100g"
           type="number"
@@ -69,14 +79,17 @@ export function FoodRow({ food }: { food: Food }) {
             Cancel
           </button>
         </div>
-        {error && <p className="col-span-4 text-xs text-danger">{error}</p>}
+        {error && <p className="col-span-5 text-xs text-danger">{error}</p>}
       </form>
     );
   }
 
   return (
-    <div className="grid grid-cols-[1fr_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 text-sm last:border-b-0">
+    <div className="grid grid-cols-[1fr_6.5rem_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 text-sm last:border-b-0">
       <span className="min-w-0 truncate font-medium">{food.name}</span>
+      <span className="w-fit rounded-full bg-surface px-2 py-0.5 text-xs text-ink-muted">
+        {FOOD_CATEGORY_LABELS[food.category]}
+      </span>
       <span className="tabular-nums text-ink-muted">{food.caloriesPer100g} kcal</span>
       <span className="tabular-nums text-ink-muted">{food.proteinPer100g} g</span>
       <div className="flex gap-1">
