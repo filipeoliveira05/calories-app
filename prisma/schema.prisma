@@ -35,6 +35,9 @@ model Food {
   caloriesPer100g  Float
   proteinPer100g   Float
   category         FoodCategory @default(OTHER)
+  isLoggedByUnit   Boolean      @default(false)
+  unitLabel        String?
+  gramsPerUnit     Float?
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
@@ -60,6 +63,13 @@ model MealEntry {
   foodName        String
   caloriesPer100g Float
   proteinPer100g  Float
+
+  // Snapshot of unit info at logging time, only set for unit-based entries.
+  // Snapshotted for the same reason as above — editing Food's unit weight
+  // later must not change how past entries convert to grams.
+  quantity     Float?
+  unitLabel    String?
+  gramsPerUnit Float?
 
   foodId String?
   food   Food?   @relation(fields: [foodId], references: [id], onDelete: SetNull)

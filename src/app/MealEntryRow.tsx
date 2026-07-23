@@ -1,13 +1,19 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { deleteMealEntry, updateMealEntryGrams } from "./actions";
+import {
+  deleteMealEntry,
+  updateMealEntryGrams,
+  updateMealEntryQuantity,
+} from "./actions";
 import type { MealType } from "@/generated/prisma/enums";
 
 type Entry = {
   id: string;
   foodName: string;
   grams: number;
+  quantity: number | null;
+  unitLabel: string | null;
   mealType: MealType;
   calories: number;
   protein: number;
@@ -16,18 +22,26 @@ type Entry = {
 export function MealEntryRow({ entry }: { entry: Entry }) {
   const [isPending, startTransition] = useTransition();
   const [isEditing, setIsEditing] = useState(false);
-  const [grams, setGrams] = useState(String(entry.grams));
+  const isUnitBased = entry.quantity != null;
+  const [amount, setAmount] = useState(
+    String(isUnitBased ? entry.quantity : entry.grams),
+  );
 
   function save() {
-    const value = Number(grams);
+    const value = Number(amount);
+    const originalValue = isUnitBased ? entry.quantity! : entry.grams;
     if (!Number.isFinite(value) || value <= 0) {
-      setGrams(String(entry.grams));
+      setAmount(String(originalValue));
       setIsEditing(false);
       return;
     }
     setIsEditing(false);
-    if (value !== entry.grams) {
-      startTransition(() => updateMealEntryGrams(entry.id, value));
+    if (value !== originalValue) {
+      startTransition(() =>
+        isUnitBased
+          ? updateMealEntryQuantity(entry.id, value)
+          : updateMealEntryGrams(entry.id, value),
+      );
     }
   }
 
@@ -39,16 +53,16 @@ export function MealEntryRow({ entry }: { entry: Entry }) {
           <input
             type="number"
             inputMode="decimal"
-            step="1"
+            step={isUnitBased ? "0.5" : "1"}
             min="0"
             autoFocus
-            value={grams}
-            onChange={(e) => setGrams(e.target.value)}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
             onBlur={save}
             onKeyDown={(e) => {
               if (e.key === "Enter") save();
               if (e.key === "Escape") {
-                setGrams(String(entry.grams));
+                setAmount(String(isUnitBased ? entry.quantity : entry.grams));
                 setIsEditing(false);
               }
             }}
@@ -59,7 +73,7 @@ export function MealEntryRow({ entry }: { entry: Entry }) {
             onClick={() => setIsEditing(true)}
             className="ml-2 text-ink-muted underline decoration-dotted underline-offset-2"
           >
-            {entry.grams}g
+            {isUnitBased ? `${entry.quantity} ${entry.unitLabel}` : `${entry.grams}g`}
           </button>
         )}
       </div>

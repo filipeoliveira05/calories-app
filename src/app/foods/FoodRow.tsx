@@ -11,6 +11,9 @@ type Food = {
   caloriesPer100g: number;
   proteinPer100g: number;
   category: FoodCategory;
+  isLoggedByUnit: boolean;
+  unitLabel: string | null;
+  gramsPerUnit: number | null;
 };
 
 const inputClasses =
@@ -20,6 +23,14 @@ export function FoodRow({ food }: { food: Food }) {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isLoggedByUnit, setIsLoggedByUnit] = useState(food.isLoggedByUnit);
+
+  const caloriesDefault = food.isLoggedByUnit
+    ? Math.round(((food.caloriesPer100g * food.gramsPerUnit!) / 100) * 100) / 100
+    : food.caloriesPer100g;
+  const proteinDefault = food.isLoggedByUnit
+    ? Math.round(((food.proteinPer100g * food.gramsPerUnit!) / 100) * 100) / 100
+    : food.proteinPer100g;
 
   if (editing) {
     return (
@@ -50,7 +61,7 @@ export function FoodRow({ food }: { food: Food }) {
           type="number"
           step="0.1"
           min="0"
-          defaultValue={food.caloriesPer100g}
+          defaultValue={caloriesDefault}
           required
           className={inputClasses}
         />
@@ -59,7 +70,7 @@ export function FoodRow({ food }: { food: Food }) {
           type="number"
           step="0.1"
           min="0"
-          defaultValue={food.proteinPer100g}
+          defaultValue={proteinDefault}
           required
           className={inputClasses}
         />
@@ -79,6 +90,45 @@ export function FoodRow({ food }: { food: Food }) {
             Cancel
           </button>
         </div>
+
+        <label className="col-span-5 mt-1 flex items-center gap-2 text-xs text-ink-muted">
+          <input
+            type="checkbox"
+            name="isLoggedByUnit"
+            checked={isLoggedByUnit}
+            onChange={(e) => setIsLoggedByUnit(e.target.checked)}
+            className="accent-sage"
+          />
+          Logged by unit (e.g. &ldquo;1 yogurt&rdquo; instead of grams)
+        </label>
+
+        {isLoggedByUnit && (
+          <div className="col-span-5 grid grid-cols-2 gap-2">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-ink-muted">Unit name</label>
+              <input
+                name="unitLabel"
+                placeholder="e.g. yogurt"
+                defaultValue={food.unitLabel ?? ""}
+                required={isLoggedByUnit}
+                className={inputClasses}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-ink-muted">Grams/unit</label>
+              <input
+                name="gramsPerUnit"
+                type="number"
+                step="0.1"
+                min="0"
+                defaultValue={food.gramsPerUnit ?? ""}
+                required={isLoggedByUnit}
+                className={inputClasses}
+              />
+            </div>
+          </div>
+        )}
+
         {error && <p className="col-span-5 text-xs text-danger">{error}</p>}
       </form>
     );
@@ -86,7 +136,14 @@ export function FoodRow({ food }: { food: Food }) {
 
   return (
     <div className="grid grid-cols-[1fr_6.5rem_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 text-sm last:border-b-0">
-      <span className="min-w-0 truncate font-medium">{food.name}</span>
+      <div className="min-w-0">
+        <span className="block truncate font-medium">{food.name}</span>
+        {food.isLoggedByUnit && (
+          <span className="block truncate text-xs text-ink-muted">
+            {food.gramsPerUnit}g / {food.unitLabel}
+          </span>
+        )}
+      </div>
       <span className="w-fit rounded-full bg-surface px-2 py-0.5 text-xs text-ink-muted">
         {FOOD_CATEGORY_LABELS[food.category]}
       </span>

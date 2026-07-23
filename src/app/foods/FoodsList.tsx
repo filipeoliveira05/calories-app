@@ -11,6 +11,9 @@ type Food = {
   caloriesPer100g: number;
   proteinPer100g: number;
   category: FoodCategory;
+  isLoggedByUnit: boolean;
+  unitLabel: string | null;
+  gramsPerUnit: number | null;
 };
 
 export function FoodsList({ foods }: { foods: Food[] }) {

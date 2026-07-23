@@ -6,6 +6,8 @@ type Entry = {
   id: string;
   foodName: string;
   grams: number;
+  quantity: number | null;
+  unitLabel: string | null;
   mealType: MealType;
   calories: number;
   protein: number;

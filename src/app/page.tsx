@@ -72,6 +72,8 @@ export default async function TodayPage() {
                 id: entry.id,
                 foodName: entry.foodName,
                 grams: entry.grams,
+                quantity: entry.quantity,
+                unitLabel: entry.unitLabel,
                 mealType: entry.mealType,
                 calories: (entry.caloriesPer100g * entry.grams) / 100,
                 protein: (entry.proteinPer100g * entry.grams) / 100,

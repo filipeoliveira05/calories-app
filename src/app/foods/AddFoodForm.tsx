@@ -11,6 +11,7 @@ export function AddFoodForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isLoggedByUnit, setIsLoggedByUnit] = useState(false);
 
   return (
     <form
@@ -21,6 +22,7 @@ export function AddFoodForm() {
           try {
             await createFood(formData);
             formRef.current?.reset();
+            setIsLoggedByUnit(false);
           } catch (e) {
             setError(e instanceof Error ? e.message : "Failed to add food");
           }
@@ -43,7 +45,9 @@ export function AddFoodForm() {
         </select>
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-ink-muted">kcal/100g</label>
+        <label className="text-xs text-ink-muted">
+          {isLoggedByUnit ? "kcal/unit" : "kcal/100g"}
+        </label>
         <input
           name="caloriesPer100g"
           type="number"
@@ -54,7 +58,9 @@ export function AddFoodForm() {
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-ink-muted">protein/100g</label>
+        <label className="text-xs text-ink-muted">
+          {isLoggedByUnit ? "protein/unit" : "protein/100g"}
+        </label>
         <input
           name="proteinPer100g"
           type="number"
@@ -71,6 +77,43 @@ export function AddFoodForm() {
       >
         Add
       </button>
+
+      <label className="col-span-5 mt-1 flex items-center gap-2 text-xs text-ink-muted">
+        <input
+          type="checkbox"
+          name="isLoggedByUnit"
+          checked={isLoggedByUnit}
+          onChange={(e) => setIsLoggedByUnit(e.target.checked)}
+          className="accent-sage"
+        />
+        Logged by unit (e.g. &ldquo;1 yogurt&rdquo; instead of grams)
+      </label>
+
+      {isLoggedByUnit && (
+        <div className="col-span-5 grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-ink-muted">Unit name</label>
+            <input
+              name="unitLabel"
+              placeholder="e.g. yogurt"
+              required={isLoggedByUnit}
+              className={inputClasses}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-ink-muted">Grams/unit</label>
+            <input
+              name="gramsPerUnit"
+              type="number"
+              step="0.1"
+              min="0"
+              required={isLoggedByUnit}
+              className={inputClasses}
+            />
+          </div>
+        </div>
+      )}
+
       {error && <p className="col-span-5 text-xs text-danger">{error}</p>}
     </form>
   );

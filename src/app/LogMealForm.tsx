@@ -12,6 +12,9 @@ type Food = {
   caloriesPer100g: number;
   proteinPer100g: number;
   category: FoodCategory;
+  isLoggedByUnit: boolean;
+  unitLabel: string | null;
+  gramsPerUnit: number | null;
 };
 
 const inputClasses =
@@ -20,7 +23,7 @@ const inputClasses =
 export function LogMealForm({ foods }: { foods: Food[] }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [foodId, setFoodId] = useState("");
-  const [grams, setGrams] = useState("");
+  const [amount, setAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -36,12 +39,16 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
     })).filter((group) => group.foods.length > 0);
   }, [foods]);
 
-  const gramsNum = Number(grams);
+  const amountNum = Number(amount);
+  const grams =
+    selectedFood?.isLoggedByUnit && selectedFood.gramsPerUnit
+      ? amountNum * selectedFood.gramsPerUnit
+      : amountNum;
   const preview =
-    selectedFood && Number.isFinite(gramsNum) && gramsNum > 0
+    selectedFood && Number.isFinite(grams) && grams > 0
       ? {
-          calories: (selectedFood.caloriesPer100g * gramsNum) / 100,
-          protein: (selectedFood.proteinPer100g * gramsNum) / 100,
+          calories: (selectedFood.caloriesPer100g * grams) / 100,
+          protein: (selectedFood.proteinPer100g * grams) / 100,
         }
       : null;
 
@@ -67,7 +74,7 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
             await logMeal(formData);
             formRef.current?.reset();
             setFoodId("");
-            setGrams("");
+            setAmount("");
           } catch (e) {
             setError(e instanceof Error ? e.message : "Failed to log meal");
           }
@@ -79,7 +86,10 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
         <select
           name="foodId"
           value={foodId}
-          onChange={(e) => setFoodId(e.target.value)}
+          onChange={(e) => {
+            setFoodId(e.target.value);
+            setAmount("");
+          }}
           required
           className={inputClasses}
         >
@@ -110,17 +120,21 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
       </div>
       <div className="flex items-center gap-2">
         <input
-          name="grams"
+          name={selectedFood?.isLoggedByUnit ? "quantity" : "grams"}
           type="number"
-          step="0.1"
+          step={selectedFood?.isLoggedByUnit ? "0.5" : "0.1"}
           min="0"
-          placeholder="grams"
-          value={grams}
-          onChange={(e) => setGrams(e.target.value)}
+          placeholder={selectedFood?.isLoggedByUnit ? "qty" : "grams"}
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
           required
           className={`w-24 ${inputClasses}`}
         />
-        <span className="text-sm text-ink-muted">g</span>
+        <span className="text-sm text-ink-muted">
+          {selectedFood?.isLoggedByUnit
+            ? (selectedFood.unitLabel ?? "unit")
+            : "g"}
+        </span>
         {preview && (
           <span className="text-sm text-ink-muted">
             → {preview.calories.toFixed(0)} kcal, {preview.protein.toFixed(1)}{" "}
