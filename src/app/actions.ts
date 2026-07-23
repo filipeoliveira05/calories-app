@@ -40,3 +40,11 @@ export async function deleteMealEntry(id: string) {
   await prisma.mealEntry.delete({ where: { id } });
   revalidatePath("/");
 }
+
+export async function updateMealEntryGrams(id: string, grams: number) {
+  if (!Number.isFinite(grams) || grams <= 0)
+    throw new Error("Grams must be a positive number");
+
+  await prisma.mealEntry.update({ where: { id }, data: { grams } });
+  revalidatePath("/");
+}
