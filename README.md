@@ -39,4 +39,4 @@ Env vars (`DATABASE_URL`, `DIRECT_URL`, `APP_PASSWORD`) are set in the Vercel pr
 
 ## Status
 
-All core pages (Foods, Today, Weight, Stats, Settings) are built and deployed. Remaining candidate: a service worker for automatic Android install prompts (currently manual "Add to Home Screen" only, which is fine for now).
+All core pages (Foods, Today, Weight, Stats, Settings) are built and deployed, now with a custom warm, dark-first visual identity (see `CLAUDE.md` for the design system). Since the initial build: Today's log is grouped by meal type (5 types, breakfast to dinner), weight can be logged in 0.05kg increments with weekly averages broken down per day, and Stats charts support a custom date range filter. Remaining candidate: a service worker for automatic Android install prompts (currently manual "Add to Home Screen" only, which is fine for now).
