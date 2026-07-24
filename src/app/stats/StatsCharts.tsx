@@ -143,8 +143,13 @@ export function StatsCharts({ data }: { data: WeekPoint[] }) {
             <button
               key={preset.label}
               onClick={() => {
-                setFrom(presetFrom);
-                setTo(maxDate);
+                if (isActive) {
+                  setFrom(minDate);
+                  setTo(maxDate);
+                } else {
+                  setFrom(presetFrom);
+                  setTo(maxDate);
+                }
               }}
               className={`rounded-full px-3 py-1 text-xs font-medium ${
                 isActive ? "bg-sage text-white" : "bg-surface-raised text-ink-muted"
