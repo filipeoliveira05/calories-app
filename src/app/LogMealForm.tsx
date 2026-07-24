@@ -119,7 +119,9 @@ export function LogMealForm({ foods, recipes }: { foods: Food[]; recipes: Recipe
   return (
     <form
       ref={formRef}
-      action={(formData) => {
+      onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
         setError(null);
         startTransition(async () => {
           try {
@@ -129,8 +131,8 @@ export function LogMealForm({ foods, recipes }: { foods: Food[]; recipes: Recipe
               await logMeal(formData);
             }
             resetForm();
-          } catch (e) {
-            setError(e instanceof Error ? e.message : "Failed to log meal");
+          } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to log meal");
           }
         });
       }}
