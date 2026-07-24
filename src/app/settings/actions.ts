@@ -33,7 +33,9 @@ function parseProfileForm(formData: FormData) {
   return { sex, birthDate, heightCm, activityLevel, goalType, goalRateKgPerWeek, proteinPerKg };
 }
 
-export async function saveProfile(formData: FormData) {
+export async function saveProfileAndCalculateGoals(
+  formData: FormData,
+): Promise<{ calculated: boolean }> {
   const data = parseProfileForm(formData);
 
   await prisma.goals.upsert({
@@ -41,24 +43,7 @@ export async function saveProfile(formData: FormData) {
     create: { id: 1, dailyCalorieGoal: 0, dailyProteinGoal: 0, ...data },
     update: data,
   });
-
   revalidatePath("/settings");
-}
-
-export async function calculateAndApplyGoals() {
-  const goals = await prisma.goals.findUnique({ where: { id: 1 } });
-  if (
-    !goals ||
-    !goals.sex ||
-    !goals.birthDate ||
-    !goals.heightCm ||
-    !goals.activityLevel ||
-    !goals.goalType ||
-    goals.goalRateKgPerWeek === null ||
-    !goals.proteinPerKg
-  ) {
-    throw new Error("Fill in your profile above to calculate goals");
-  }
 
   const weightEntries = await prisma.weightEntry.findMany({
     orderBy: { date: "asc" },
@@ -66,18 +51,9 @@ export async function calculateAndApplyGoals() {
   const weightKg = getLatestWeeklyAverageWeight(
     weightEntries.map((e) => ({ date: e.date, weightKg: e.weightKg })),
   );
-  if (weightKg === null) throw new Error("Log a weigh-in first to calculate goals");
+  if (weightKg === null) return { calculated: false };
 
-  const { calorieGoal, proteinGoal } = calculateGoals({
-    sex: goals.sex,
-    birthDate: goals.birthDate,
-    heightCm: goals.heightCm,
-    activityLevel: goals.activityLevel,
-    goalType: goals.goalType,
-    goalRateKgPerWeek: goals.goalRateKgPerWeek,
-    proteinPerKg: goals.proteinPerKg,
-    weightKg,
-  });
+  const { calorieGoal, proteinGoal } = calculateGoals({ ...data, weightKg });
 
   await prisma.goals.update({
     where: { id: 1 },
@@ -89,6 +65,7 @@ export async function calculateAndApplyGoals() {
 
   revalidatePath("/settings");
   revalidatePath("/");
+  return { calculated: true };
 }
 
 export async function saveGoals(formData: FormData) {

@@ -26,7 +26,7 @@ export default async function SettingsPage() {
       goals?.proteinPerKg,
   );
 
-  const maintenanceCalories =
+  const preview =
     profileComplete && weightKg !== null
       ? calculateGoals({
           sex: goals!.sex!,
@@ -37,14 +37,7 @@ export default async function SettingsPage() {
           goalRateKgPerWeek: goals!.goalRateKgPerWeek!,
           proteinPerKg: goals!.proteinPerKg!,
           weightKg,
-        }).maintenanceCalories
-      : null;
-
-  const canCalculate = profileComplete && weightKg !== null;
-  const calculateDisabledReason = !profileComplete
-    ? "Fill in your profile above to calculate goals."
-    : weightKg === null
-      ? "Log a weigh-in first to calculate goals."
+        })
       : null;
 
   return (
@@ -56,6 +49,7 @@ export default async function SettingsPage() {
         </p>
       </div>
       <ProfileForm
+        formVersion={goals?.updatedAt?.toISOString() ?? "new"}
         sex={goals?.sex ?? null}
         birthDate={goals?.birthDate ? goals.birthDate.toISOString().slice(0, 10) : null}
         heightCm={goals?.heightCm ?? null}
@@ -63,11 +57,13 @@ export default async function SettingsPage() {
         goalType={goals?.goalType ?? null}
         goalRateKgPerWeek={goals?.goalRateKgPerWeek ?? null}
         proteinPerKg={goals?.proteinPerKg ?? null}
-        maintenanceCalories={maintenanceCalories}
-        canCalculate={canCalculate}
-        calculateDisabledReason={calculateDisabledReason}
+        maintenanceCalories={preview?.maintenanceCalories ?? null}
+        calorieGoalPreview={preview?.calorieGoal ?? null}
+        proteinGoalPreview={preview?.proteinGoal ?? null}
       />
+      <p className="text-sm text-ink-muted">Or, skip the calculator and set goals yourself:</p>
       <GoalsForm
+        formVersion={goals?.updatedAt?.toISOString() ?? "new"}
         dailyCalorieGoal={goals?.dailyCalorieGoal ?? null}
         dailyProteinGoal={goals?.dailyProteinGoal ?? null}
       />
