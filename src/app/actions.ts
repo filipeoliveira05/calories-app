@@ -2,16 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { dateOnlyFromParam } from "@/lib/dateOnly";
 import type { MealType } from "@/generated/prisma/enums";
-
-function todayDateOnly() {
-  const now = new Date();
-  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-}
 
 export async function logMeal(formData: FormData) {
   const foodId = String(formData.get("foodId") ?? "");
   const mealType = String(formData.get("mealType") ?? "BREAKFAST") as MealType;
+  const date = dateOnlyFromParam(String(formData.get("date") ?? ""));
 
   if (!foodId) throw new Error("Pick a food");
 
@@ -34,7 +31,7 @@ export async function logMeal(formData: FormData) {
 
   await prisma.mealEntry.create({
     data: {
-      date: todayDateOnly(),
+      date,
       mealType,
       grams,
       foodId: food.id,
@@ -62,7 +59,7 @@ export async function logRecipe(formData: FormData) {
   if (!recipe) throw new Error("Recipe not found");
   if (recipe.ingredients.length === 0) throw new Error("Recipe has no ingredients");
 
-  const date = todayDateOnly();
+  const date = dateOnlyFromParam(String(formData.get("date") ?? ""));
 
   await prisma.$transaction(
     recipe.ingredients.map((ri) =>

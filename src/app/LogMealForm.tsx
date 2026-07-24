@@ -50,7 +50,15 @@ function recipeTotals(recipe: Recipe) {
   );
 }
 
-export function LogMealForm({ foods, recipes }: { foods: Food[]; recipes: Recipe[] }) {
+export function LogMealForm({
+  foods,
+  recipes,
+  date,
+}: {
+  foods: Food[];
+  recipes: Recipe[];
+  date: string;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   const [mode, setMode] = useState<"food" | "recipe">("food");
   const [foodId, setFoodId] = useState("");
@@ -138,6 +146,7 @@ export function LogMealForm({ foods, recipes }: { foods: Food[]; recipes: Recipe
       }}
       className="mb-6 flex flex-col gap-2.5 rounded-2xl bg-surface-raised p-4 shadow-sm"
     >
+      <input type="hidden" name="date" value={date} />
       <div className="flex gap-1.5">
         <button
           type="button"
