@@ -17,7 +17,7 @@ Live at: https://calories-app-sigma-three.vercel.app (password-gated)
 - `Food` — personal nutrition database (calories/protein per 100g), source of truth, added manually (no CSV import)
 - `MealEntry` — logged meals; snapshots the food's calorie/protein values at creation time so later edits to a `Food` don't retroactively change historical logs
 - `WeightEntry` — one per day, weekly average computed in `src/lib/weeks.ts`
-- `Goals` — single-row daily calorie/protein targets
+- `Goals` — single-row daily calorie/protein targets, plus an optional personal-info profile (sex, birth date, height, activity level, weight goal type/rate, protein target) used to derive suggested goals via Mifflin-St Jeor (`src/lib/nutritionGoals.ts`)
 
 ## Local development
 
@@ -39,4 +39,4 @@ Env vars (`DATABASE_URL`, `DIRECT_URL`, `APP_PASSWORD`) are set in the Vercel pr
 
 ## Status
 
-All core pages (Foods, Today, Weight, Stats, Settings) are built and deployed, now with a custom warm, dark-first visual identity (see `CLAUDE.md` for the design system). Since the initial build: Today's log is grouped by meal type (5 types, breakfast to dinner), weight can be logged in 0.05kg increments with weekly averages broken down per day, and Stats charts support a custom date range filter (plus quick presets for last month/3 months/year). Foods now have categories (filterable on the Foods page, grouped in Today's food picker) and can optionally be logged by unit instead of grams (e.g. "2 yogurts"), for foods that are naturally counted rather than weighed. Today's logged entries support inline editing (grams or quantity, tap to edit). Remaining candidate: a service worker for automatic Android install prompts (currently manual "Add to Home Screen" only, which is fine for now).
+All core pages (Foods, Today, Weight, Stats, Settings) are built and deployed, now with a custom warm, dark-first visual identity (see `CLAUDE.md` for the design system). Since the initial build: Today's log is grouped by meal type (5 types, breakfast to dinner), weight can be logged in 0.05kg increments with weekly averages broken down per day, and Stats charts support a custom date range filter (plus quick presets for last month/3 months/year). Foods now have categories (filterable on the Foods page, grouped in Today's food picker) and can optionally be logged by unit instead of grams (e.g. "2 yogurts"), for foods that are naturally counted rather than weighed. Today's logged entries support inline editing (grams or quantity, tap to edit). Settings now has a Personal Info profile that calculates suggested daily calorie/protein goals from body stats and activity level (one "Save & calculate goals" action, previewing maintenance/calorie-goal/protein-target), alongside the original manual goal-entry card for setting numbers directly. Remaining candidate: a service worker for automatic Android install prompts (currently manual "Add to Home Screen" only, which is fine for now).
