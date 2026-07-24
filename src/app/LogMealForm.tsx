@@ -229,7 +229,7 @@ export function LogMealForm({ foods, recipes }: { foods: Food[]; recipes: Recipe
               <input
                 name={selectedFood?.isLoggedByUnit ? "quantity" : "grams"}
                 type="number"
-                step={selectedFood?.isLoggedByUnit ? "0.5" : "0.1"}
+                step={selectedFood?.isLoggedByUnit ? "0.5" : "1"}
                 min="0"
                 placeholder={selectedFood?.isLoggedByUnit ? "qty" : "grams"}
                 value={amount}
