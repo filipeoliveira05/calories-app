@@ -32,6 +32,36 @@ export function formatDayLabel(date: Date): string {
   });
 }
 
+/**
+ * Average weight of the most recent complete week (Mon–Sun fully in the
+ * past). Falls back to the latest week with any entries at all (even if
+ * still in progress) when no complete week has data yet.
+ */
+export function getLatestWeeklyAverageWeight(
+  entries: { date: Date; weightKg: number }[],
+): number | null {
+  if (entries.length === 0) return null;
+
+  const groups = groupByWeek(entries, (e) => e.date);
+  const today = new Date();
+
+  const weekAverages = [...groups.entries()]
+    .map(([weekKey, weights]) => {
+      const weekStart = new Date(weekKey);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+      return {
+        weekStart,
+        isComplete: weekEnd < today,
+        average: weights.reduce((s, w) => s + w.weightKg, 0) / weights.length,
+      };
+    })
+    .sort((a, b) => b.weekStart.getTime() - a.weekStart.getTime());
+
+  const latestComplete = weekAverages.find((w) => w.isComplete);
+  return (latestComplete ?? weekAverages[0]).average;
+}
+
 export function groupByWeek<T>(
   items: T[],
   getDate: (item: T) => Date,

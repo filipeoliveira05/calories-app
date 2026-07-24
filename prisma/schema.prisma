@@ -87,8 +87,39 @@ model WeightEntry {
   createdAt DateTime @default(now())
 }
 
+enum Sex {
+  MALE
+  FEMALE
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHT
+  MODERATE
+  ACTIVE
+  VERY_ACTIVE
+}
+
+enum WeightGoalType {
+  LOSE
+  MAINTAIN
+  GAIN
+}
+
 model Goals {
-  id                Int   @id @default(1)
+  id                Int             @id @default(1)
   dailyCalorieGoal  Float
   dailyProteinGoal  Float
+
+  // Profile, used to derive the goals above. All optional so existing
+  // rows keep working before a profile is set.
+  sex               Sex?
+  birthDate         DateTime?       @db.Date
+  heightCm          Float?
+  activityLevel     ActivityLevel?
+  goalType          WeightGoalType?
+  goalRateKgPerWeek Float?
+  proteinPerKg      Float?
+
+  updatedAt         DateTime        @updatedAt
 }
