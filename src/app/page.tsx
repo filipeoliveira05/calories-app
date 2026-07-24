@@ -12,14 +12,34 @@ function todayDateOnly() {
 }
 
 export default async function TodayPage() {
-  const [foods, entries, goals] = await Promise.all([
+  const [foods, recipes, entries, goals] = await Promise.all([
     prisma.food.findMany({ orderBy: { name: "asc" } }),
+    prisma.recipe.findMany({
+      orderBy: { name: "asc" },
+      include: { ingredients: { include: { food: true } } },
+    }),
     prisma.mealEntry.findMany({
       where: { date: todayDateOnly() },
       orderBy: { createdAt: "asc" },
     }),
     prisma.goals.findUnique({ where: { id: 1 } }),
   ]);
+
+  const recipesForUi = recipes.map((recipe) => ({
+    id: recipe.id,
+    name: recipe.name,
+    ingredients: recipe.ingredients.map((ri) => ({
+      id: ri.id,
+      foodName: ri.food.name,
+      grams: ri.grams,
+      quantity: ri.quantity,
+      unitLabel: ri.food.unitLabel,
+      caloriesPer100g: ri.food.caloriesPer100g,
+      proteinPer100g: ri.food.proteinPer100g,
+      isLoggedByUnit: ri.food.isLoggedByUnit,
+      gramsPerUnit: ri.food.gramsPerUnit,
+    })),
+  }));
 
   const totals = entries.reduce(
     (acc, e) => {
@@ -59,7 +79,7 @@ export default async function TodayPage() {
         )}
       </div>
 
-      <LogMealForm foods={foods} />
+      <LogMealForm foods={foods} recipes={recipesForUi} />
 
       {entries.length === 0 ? (
         <p className="text-sm text-ink-muted">No meals logged today yet.</p>

@@ -22,6 +22,7 @@ const inputClasses =
 export function FoodRow({ food }: { food: Food }) {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isLoggedByUnit, setIsLoggedByUnit] = useState(food.isLoggedByUnit);
 
@@ -143,6 +144,9 @@ export function FoodRow({ food }: { food: Food }) {
             {food.gramsPerUnit}g / {food.unitLabel}
           </span>
         )}
+        {deleteError && (
+          <span className="block whitespace-pre-line text-xs text-danger">{deleteError}</span>
+        )}
       </div>
       <span className="w-fit rounded-full bg-surface px-2 py-0.5 text-xs text-ink-muted">
         {FOOD_CATEGORY_LABELS[food.category]}
@@ -158,9 +162,15 @@ export function FoodRow({ food }: { food: Food }) {
         </button>
         <button
           onClick={() => {
-            if (confirm(`Delete "${food.name}"?`)) {
-              startTransition(() => deleteFood(food.id));
-            }
+            if (!confirm(`Delete "${food.name}"?`)) return;
+            setDeleteError(null);
+            startTransition(async () => {
+              try {
+                await deleteFood(food.id);
+              } catch (e) {
+                setDeleteError(e instanceof Error ? e.message : "Failed to delete");
+              }
+            });
           }}
           disabled={isPending}
           className="rounded-lg px-2 py-1 text-xs font-medium text-danger hover:bg-terracotta-soft disabled:opacity-50"

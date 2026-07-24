@@ -50,6 +50,44 @@ export async function logMeal(formData: FormData) {
   revalidatePath("/");
 }
 
+export async function logRecipe(formData: FormData) {
+  const recipeId = String(formData.get("recipeId") ?? "");
+  const mealType = String(formData.get("mealType") ?? "BREAKFAST") as MealType;
+  if (!recipeId) throw new Error("Pick a recipe");
+
+  const recipe = await prisma.recipe.findUnique({
+    where: { id: recipeId },
+    include: { ingredients: { include: { food: true } } },
+  });
+  if (!recipe) throw new Error("Recipe not found");
+  if (recipe.ingredients.length === 0) throw new Error("Recipe has no ingredients");
+
+  const date = todayDateOnly();
+
+  await prisma.$transaction(
+    recipe.ingredients.map((ri) =>
+      prisma.mealEntry.create({
+        data: {
+          date,
+          mealType,
+          grams: ri.food.isLoggedByUnit
+            ? ri.quantity! * ri.food.gramsPerUnit!
+            : ri.grams!,
+          foodId: ri.food.id,
+          foodName: ri.food.name,
+          caloriesPer100g: ri.food.caloriesPer100g,
+          proteinPer100g: ri.food.proteinPer100g,
+          quantity: ri.food.isLoggedByUnit ? ri.quantity : null,
+          unitLabel: ri.food.isLoggedByUnit ? ri.food.unitLabel : null,
+          gramsPerUnit: ri.food.isLoggedByUnit ? ri.food.gramsPerUnit : null,
+        },
+      }),
+    ),
+  );
+
+  revalidatePath("/");
+}
+
 export async function deleteMealEntry(id: string) {
   await prisma.mealEntry.delete({ where: { id } });
   revalidatePath("/");

@@ -41,7 +41,33 @@ model Food {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
-  mealEntries MealEntry[]
+  mealEntries       MealEntry[]
+  recipeIngredients RecipeIngredient[]
+}
+
+model Recipe {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ingredients RecipeIngredient[]
+}
+
+model RecipeIngredient {
+  id       String @id @default(cuid())
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  foodId   String
+  food     Food   @relation(fields: [foodId], references: [id], onDelete: Restrict)
+
+  // Fixed amount for this ingredient — exactly one of these is set,
+  // mirroring MealEntry's grams/quantity split (driven by food.isLoggedByUnit).
+  grams    Float?
+  quantity Float?
+
+  @@index([recipeId])
+  @@index([foodId])
 }
 
 enum MealType {

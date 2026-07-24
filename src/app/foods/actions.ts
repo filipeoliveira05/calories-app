@@ -67,6 +67,106 @@ export async function updateFood(id: string, formData: FormData) {
 }
 
 export async function deleteFood(id: string) {
-  await prisma.food.delete({ where: { id } });
+  try {
+    await prisma.food.delete({ where: { id } });
+  } catch (e) {
+    if (
+      e &&
+      typeof e === "object" &&
+      "code" in e &&
+      (e as { code: string }).code === "P2003"
+    ) {
+      const usedIn = await prisma.recipeIngredient.findMany({
+        where: { foodId: id },
+        include: { recipe: true },
+        distinct: ["recipeId"],
+      });
+      const names = usedIn.map((ri) => `- ${ri.recipe.name}`).join("\n");
+      throw new Error(
+        `Used in recipe(s):\n${names}\nRemove it from those recipes first.`,
+      );
+    }
+    throw e;
+  }
+  revalidatePath("/foods");
+}
+
+type IngredientInput = {
+  foodId: string;
+  grams: number | null;
+  quantity: number | null;
+};
+
+function parseRecipeForm(formData: FormData, foods: Map<string, { isLoggedByUnit: boolean }>) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) throw new Error("Name is required");
+
+  const foodIds = formData.getAll("ingredientFoodId").map(String);
+  const amounts = formData.getAll("ingredientAmount").map(String);
+
+  if (foodIds.length === 0) throw new Error("Add at least one ingredient");
+
+  const ingredients: IngredientInput[] = foodIds.map((foodId, i) => {
+    const food = foods.get(foodId);
+    if (!food) throw new Error("Invalid ingredient food");
+    const amount = Number(amounts[i]);
+    if (!Number.isFinite(amount) || amount <= 0)
+      throw new Error("Ingredient amount must be a positive number");
+    return {
+      foodId,
+      grams: food.isLoggedByUnit ? null : amount,
+      quantity: food.isLoggedByUnit ? amount : null,
+    };
+  });
+
+  return { name, ingredients };
+}
+
+export async function createRecipe(formData: FormData) {
+  const foods = await prisma.food.findMany({ select: { id: true, isLoggedByUnit: true } });
+  const foodMap = new Map(foods.map((f) => [f.id, f]));
+  const { name, ingredients } = parseRecipeForm(formData, foodMap);
+
+  try {
+    await prisma.recipe.create({
+      data: {
+        name,
+        ingredients: { create: ingredients },
+      },
+    });
+  } catch (e) {
+    if (
+      e &&
+      typeof e === "object" &&
+      "code" in e &&
+      (e as { code: string }).code === "P2002"
+    ) {
+      throw new Error(`"${name}" already exists`);
+    }
+    throw e;
+  }
+  revalidatePath("/foods");
+}
+
+export async function updateRecipe(id: string, formData: FormData) {
+  const foods = await prisma.food.findMany({ select: { id: true, isLoggedByUnit: true } });
+  const foodMap = new Map(foods.map((f) => [f.id, f]));
+  const { name, ingredients } = parseRecipeForm(formData, foodMap);
+
+  await prisma.$transaction([
+    prisma.recipeIngredient.deleteMany({ where: { recipeId: id } }),
+    prisma.recipe.update({
+      where: { id },
+      data: {
+        name,
+        ingredients: { create: ingredients },
+      },
+    }),
+  ]);
+  revalidatePath("/foods");
+}
+
+export async function deleteRecipe(id: string) {
+  await prisma.recipe.delete({ where: { id } });
   revalidatePath("/foods");
 }
