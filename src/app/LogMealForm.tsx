@@ -72,7 +72,6 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
         startTransition(async () => {
           try {
             await logMeal(formData);
-            formRef.current?.reset();
             setFoodId("");
             setAmount("");
           } catch (e) {
