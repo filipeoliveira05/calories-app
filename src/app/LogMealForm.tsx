@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { logMeal } from "./actions";
-import { MEAL_TYPES, MEAL_TYPE_LABELS } from "@/lib/mealTypes";
+import { MEAL_TYPES, MEAL_TYPE_LABELS, getDefaultMealType } from "@/lib/mealTypes";
 import { FOOD_CATEGORIES, FOOD_CATEGORY_LABELS } from "@/lib/foodCategories";
-import type { FoodCategory } from "@/generated/prisma/enums";
+import type { FoodCategory, MealType } from "@/generated/prisma/enums";
 
 type Food = {
   id: string;
@@ -24,8 +24,15 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [foodId, setFoodId] = useState("");
   const [amount, setAmount] = useState("");
+  const [mealType, setMealType] = useState<MealType>("BREAKFAST");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    // Client's clock isn't known during SSR; deferring to an effect avoids a hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMealType(getDefaultMealType());
+  }, []);
 
   const selectedFood = useMemo(
     () => foods.find((f) => f.id === foodId) ?? null,
@@ -74,6 +81,7 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
             await logMeal(formData);
             setFoodId("");
             setAmount("");
+            setMealType(getDefaultMealType());
           } catch (e) {
             setError(e instanceof Error ? e.message : "Failed to log meal");
           }
@@ -107,7 +115,8 @@ export function LogMealForm({ foods }: { foods: Food[] }) {
         </select>
         <select
           name="mealType"
-          defaultValue="BREAKFAST"
+          value={mealType}
+          onChange={(e) => setMealType(e.target.value as MealType)}
           className={inputClasses}
         >
           {MEAL_TYPES.map((type) => (
