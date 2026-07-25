@@ -136,14 +136,16 @@ export function DayTools({
               Save this day as a template
             </button>
           )}
-          <button
-            type="button"
-            onClick={clear}
-            disabled={isPending}
-            className="ml-auto rounded-lg px-2 py-1 text-xs font-medium text-danger hover:bg-terracotta-soft disabled:opacity-50"
-          >
-            Clear day
-          </button>
+          {!savingAs && (
+            <button
+              type="button"
+              onClick={clear}
+              disabled={isPending}
+              className="ml-auto rounded-lg px-2 py-1 text-xs font-medium text-danger hover:bg-terracotta-soft disabled:opacity-50"
+            >
+              Clear day
+            </button>
+          )}
         </div>
       )}
 
