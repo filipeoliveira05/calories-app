@@ -145,7 +145,17 @@ export function FoodRow({ food }: { food: Food }) {
           </span>
         )}
         {deleteError && (
-          <span className="block whitespace-pre-line text-xs text-danger">{deleteError}</span>
+          <span className="mt-0.5 flex items-start gap-1.5 text-xs text-danger">
+            <span className="whitespace-pre-line">{deleteError}</span>
+            <button
+              type="button"
+              onClick={() => setDeleteError(null)}
+              aria-label="Dismiss"
+              className="shrink-0 font-medium text-danger hover:opacity-70"
+            >
+              ×
+            </button>
+          </span>
         )}
       </div>
       <span className="w-fit rounded-full bg-surface px-2 py-0.5 text-xs text-ink-muted">
