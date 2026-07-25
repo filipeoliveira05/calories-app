@@ -152,6 +152,7 @@ export default async function TodayPage({
                 key={mealType}
                 mealType={mealType}
                 entries={mealEntries}
+                date={dateParam(selectedDate)}
               />
             );
           })}

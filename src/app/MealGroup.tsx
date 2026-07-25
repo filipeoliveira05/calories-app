@@ -1,4 +1,5 @@
 import { MealEntryRow } from "./MealEntryRow";
+import { SaveMealAsRecipe } from "./SaveMealAsRecipe";
 import { MEAL_TYPE_LABELS } from "@/lib/mealTypes";
 import type { MealType } from "@/generated/prisma/enums";
 
@@ -16,9 +17,11 @@ type Entry = {
 export function MealGroup({
   mealType,
   entries,
+  date,
 }: {
   mealType: MealType;
   entries: Entry[];
+  date: string;
 }) {
   const totals = entries.reduce(
     (acc, e) => {
@@ -38,8 +41,11 @@ export function MealGroup({
         {entries.map((entry) => (
           <MealEntryRow key={entry.id} entry={entry} />
         ))}
-        <div className="flex justify-end border-t border-hairline pt-2 text-xs text-ink-muted">
-          {totals.calories.toFixed(0)} kcal · {totals.protein.toFixed(1)}g protein
+        <div className="flex flex-wrap items-center gap-2 border-t border-hairline pt-2 text-xs text-ink-muted">
+          <SaveMealAsRecipe mealType={mealType} date={date} />
+          <span className="ml-auto whitespace-nowrap">
+            {totals.calories.toFixed(0)} kcal · {totals.protein.toFixed(1)}g protein
+          </span>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { dateOnlyFromParam } from "@/lib/dateOnly";
+import { MEAL_TYPES } from "@/lib/mealTypes";
 import type { MealType } from "@/generated/prisma/enums";
 
 export async function logMeal(formData: FormData) {
@@ -168,6 +169,67 @@ export async function saveDayAsTemplate(formData: FormData) {
             quantity: e.quantity,
           })),
         },
+      },
+    });
+  } catch (e) {
+    if (
+      e &&
+      typeof e === "object" &&
+      "code" in e &&
+      (e as { code: string }).code === "P2002"
+    ) {
+      throw new Error(`"${name}" already exists`);
+    }
+    throw e;
+  }
+
+  revalidatePath("/");
+}
+
+type IngredientAmount = { foodId: string; grams: number | null; quantity: number | null };
+
+/** Order-independent signature of a recipe's ingredients, for exact-content-match detection. */
+function ingredientSignature(ingredients: IngredientAmount[]) {
+  return ingredients
+    .map((i) => `${i.foodId}:${i.grams?.toFixed(2) ?? ""}:${i.quantity?.toFixed(2) ?? ""}`)
+    .sort()
+    .join("|");
+}
+
+export async function saveMealAsRecipe(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) throw new Error("Name is required");
+
+  const mealType = String(formData.get("mealType") ?? "") as MealType;
+  if (!MEAL_TYPES.includes(mealType)) throw new Error("Invalid meal type");
+
+  const date = dateOnlyFromParam(String(formData.get("date") ?? ""));
+  const entries = await prisma.mealEntry.findMany({ where: { date, mealType } });
+  const withFood = entries.filter((e) => e.foodId != null);
+  if (withFood.length === 0) throw new Error("No foods to save from this meal");
+
+  const force = formData.get("force") === "true";
+  const ingredients = withFood.map((e) => ({
+    foodId: e.foodId!,
+    grams: e.quantity == null ? e.grams : null,
+    quantity: e.quantity,
+  }));
+
+  if (!force) {
+    const signature = ingredientSignature(ingredients);
+    const existingRecipes = await prisma.recipe.findMany({
+      select: { name: true, ingredients: { select: { foodId: true, grams: true, quantity: true } } },
+    });
+    const match = existingRecipes.find((r) => ingredientSignature(r.ingredients) === signature);
+    if (match) throw new Error(`DUPLICATE_CONTENT::${match.name}`);
+  }
+
+  try {
+    await prisma.recipe.create({
+      data: {
+        name,
+        mealTypes: [mealType],
+        ingredients: { create: ingredients },
       },
     });
   } catch (e) {
