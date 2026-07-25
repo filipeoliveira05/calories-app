@@ -14,6 +14,8 @@ export function DateNav({
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const current = dateOnlyFromParam(selectedDate);
+  const today = dateOnlyFromParam(undefined);
+  const isToday = dateParam(current) === dateParam(today);
 
   function goTo(date: Date) {
     const param = dateParam(date);
@@ -81,6 +83,16 @@ export function DateNav({
       >
         →
       </button>
+      {!isToday && (
+        <button
+          type="button"
+          onClick={() => goTo(today)}
+          className="rounded-lg px-2 py-1 text-xs font-medium text-sage hover:bg-surface-raised"
+        >
+          Today
+        </button>
+      )}
     </div>
+
   );
 }
