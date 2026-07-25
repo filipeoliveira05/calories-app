@@ -77,18 +77,18 @@ export function FoodRow({ food }: { food: Food }) {
         />
         <div className="flex gap-1">
           <button
-            type="submit"
-            disabled={isPending}
-            className="rounded-lg bg-sage px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
-          >
-            Save
-          </button>
-          <button
             type="button"
             onClick={() => setEditing(false)}
             className="rounded-lg px-2 py-1 text-xs font-medium text-ink-muted"
           >
             Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="rounded-lg bg-sage px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+          >
+            Save
           </button>
         </div>
 

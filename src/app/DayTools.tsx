@@ -110,14 +110,6 @@ export function DayTools({
               />
               <button
                 type="button"
-                onClick={saveAsTemplate}
-                disabled={!templateName.trim() || isPending}
-                className="rounded-lg bg-sage px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
-              >
-                Save
-              </button>
-              <button
-                type="button"
                 onClick={() => {
                   setSavingAs(false);
                   setTemplateName("");
@@ -125,6 +117,14 @@ export function DayTools({
                 className="rounded-lg px-2 py-1 text-xs font-medium text-ink-muted"
               >
                 Cancel
+              </button>
+              <button
+                type="button"
+                onClick={saveAsTemplate}
+                disabled={!templateName.trim() || isPending}
+                className="rounded-lg bg-sage px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+              >
+                Save
               </button>
             </>
           ) : (

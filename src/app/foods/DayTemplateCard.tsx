@@ -93,18 +93,18 @@ export function DayTemplateCard({
         <DayTemplateEntryEditor foods={foods} recipes={recipes} entries={entries} onChange={setEntries} />
         <div className="flex items-center gap-3">
           <button
-            type="submit"
-            disabled={isPending || entries.length === 0}
-            className="ml-auto rounded-lg bg-sage px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
-          >
-            Save
-          </button>
-          <button
             type="button"
             onClick={() => setEditing(false)}
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-ink-muted"
+            className="ml-auto rounded-lg px-3 py-1.5 text-xs font-medium text-ink-muted"
           >
             Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isPending || entries.length === 0}
+            className="rounded-lg bg-sage px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+          >
+            Save
           </button>
         </div>
         {error && (
