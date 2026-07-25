@@ -41,8 +41,9 @@ model Food {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
-  mealEntries       MealEntry[]
-  recipeIngredients RecipeIngredient[]
+  mealEntries        MealEntry[]
+  recipeIngredients  RecipeIngredient[]
+  dayTemplateEntries DayTemplateEntry[]
 }
 
 model Recipe {
@@ -68,6 +69,32 @@ model RecipeIngredient {
   quantity Float?
 
   @@index([recipeId])
+  @@index([foodId])
+}
+
+model DayTemplate {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entries DayTemplateEntry[]
+}
+
+model DayTemplateEntry {
+  id            String      @id @default(cuid())
+  dayTemplateId String
+  dayTemplate   DayTemplate @relation(fields: [dayTemplateId], references: [id], onDelete: Cascade)
+  mealType      MealType
+  foodId        String
+  food          Food        @relation(fields: [foodId], references: [id], onDelete: Restrict)
+
+  // Fixed amount for this entry — exactly one of these is set,
+  // mirroring RecipeIngredient/MealEntry's grams/quantity split.
+  grams    Float?
+  quantity Float?
+
+  @@index([dayTemplateId])
   @@index([foodId])
 }
 

@@ -111,3 +111,82 @@ export async function updateMealEntryQuantity(id: string, quantity: number) {
   });
   revalidatePath("/");
 }
+
+export async function applyDayTemplate(formData: FormData) {
+  const templateId = String(formData.get("templateId") ?? "");
+  if (!templateId) throw new Error("Pick a template");
+
+  const template = await prisma.dayTemplate.findUnique({
+    where: { id: templateId },
+    include: { entries: { include: { food: true } } },
+  });
+  if (!template) throw new Error("Template not found");
+  if (template.entries.length === 0) throw new Error("Template has no meals");
+
+  const date = dateOnlyFromParam(String(formData.get("date") ?? ""));
+
+  await prisma.$transaction(
+    template.entries.map((te) =>
+      prisma.mealEntry.create({
+        data: {
+          date,
+          mealType: te.mealType,
+          grams: te.food.isLoggedByUnit ? te.quantity! * te.food.gramsPerUnit! : te.grams!,
+          foodId: te.food.id,
+          foodName: te.food.name,
+          caloriesPer100g: te.food.caloriesPer100g,
+          proteinPer100g: te.food.proteinPer100g,
+          quantity: te.food.isLoggedByUnit ? te.quantity : null,
+          unitLabel: te.food.isLoggedByUnit ? te.food.unitLabel : null,
+          gramsPerUnit: te.food.isLoggedByUnit ? te.food.gramsPerUnit : null,
+        },
+      }),
+    ),
+  );
+
+  revalidatePath("/");
+}
+
+export async function saveDayAsTemplate(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) throw new Error("Name is required");
+
+  const date = dateOnlyFromParam(String(formData.get("date") ?? ""));
+  const entries = await prisma.mealEntry.findMany({ where: { date } });
+  const withFood = entries.filter((e) => e.foodId != null);
+  if (withFood.length === 0) throw new Error("No meals to save for this day");
+
+  try {
+    await prisma.dayTemplate.create({
+      data: {
+        name,
+        entries: {
+          create: withFood.map((e) => ({
+            mealType: e.mealType,
+            foodId: e.foodId!,
+            grams: e.quantity == null ? e.grams : null,
+            quantity: e.quantity,
+          })),
+        },
+      },
+    });
+  } catch (e) {
+    if (
+      e &&
+      typeof e === "object" &&
+      "code" in e &&
+      (e as { code: string }).code === "P2002"
+    ) {
+      throw new Error(`"${name}" already exists`);
+    }
+    throw e;
+  }
+
+  revalidatePath("/");
+}
+
+export async function clearDay(formData: FormData) {
+  const date = dateOnlyFromParam(String(formData.get("date") ?? ""));
+  await prisma.mealEntry.deleteMany({ where: { date } });
+  revalidatePath("/");
+}

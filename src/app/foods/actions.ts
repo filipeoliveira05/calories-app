@@ -77,15 +77,23 @@ export async function deleteFood(id: string) {
       "code" in e &&
       (e as { code: string }).code === "P2003"
     ) {
-      const usedIn = await prisma.recipeIngredient.findMany({
-        where: { foodId: id },
-        include: { recipe: true },
-        distinct: ["recipeId"],
-      });
-      const names = usedIn.map((ri) => `- ${ri.recipe.name}`).join("\n");
-      throw new Error(
-        `Used in recipe(s):\n${names}\nRemove it from those recipes first.`,
-      );
+      const [usedInRecipes, usedInTemplates] = await Promise.all([
+        prisma.recipeIngredient.findMany({
+          where: { foodId: id },
+          include: { recipe: true },
+          distinct: ["recipeId"],
+        }),
+        prisma.dayTemplateEntry.findMany({
+          where: { foodId: id },
+          include: { dayTemplate: true },
+          distinct: ["dayTemplateId"],
+        }),
+      ]);
+      const lines = [
+        ...usedInRecipes.map((ri) => `- ${ri.recipe.name} (recipe)`),
+        ...usedInTemplates.map((te) => `- ${te.dayTemplate.name} (template)`),
+      ].join("\n");
+      throw new Error(`Used in:\n${lines}\nRemove it from those first.`);
     }
     throw e;
   }
@@ -174,5 +182,93 @@ export async function updateRecipe(id: string, formData: FormData) {
 
 export async function deleteRecipe(id: string) {
   await prisma.recipe.delete({ where: { id } });
+  revalidatePath("/foods");
+}
+
+type DayTemplateEntryInput = {
+  mealType: MealType;
+  foodId: string;
+  grams: number | null;
+  quantity: number | null;
+};
+
+function parseDayTemplateForm(
+  formData: FormData,
+  foods: Map<string, { isLoggedByUnit: boolean }>,
+) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) throw new Error("Name is required");
+
+  const mealTypes = formData.getAll("entryMealType").map(String) as MealType[];
+  const foodIds = formData.getAll("entryFoodId").map(String);
+  const amounts = formData.getAll("entryAmount").map(String);
+
+  if (foodIds.length === 0) throw new Error("Add at least one meal");
+
+  const entries: DayTemplateEntryInput[] = foodIds.map((foodId, i) => {
+    const mealType = mealTypes[i];
+    if (!MEAL_TYPES.includes(mealType)) throw new Error("Invalid meal type");
+    const food = foods.get(foodId);
+    if (!food) throw new Error("Invalid food");
+    const amount = Number(amounts[i]);
+    if (!Number.isFinite(amount) || amount <= 0)
+      throw new Error("Amount must be a positive number");
+    return {
+      mealType,
+      foodId,
+      grams: food.isLoggedByUnit ? null : amount,
+      quantity: food.isLoggedByUnit ? amount : null,
+    };
+  });
+
+  return { name, entries };
+}
+
+export async function createDayTemplate(formData: FormData) {
+  const foods = await prisma.food.findMany({ select: { id: true, isLoggedByUnit: true } });
+  const foodMap = new Map(foods.map((f) => [f.id, f]));
+  const { name, entries } = parseDayTemplateForm(formData, foodMap);
+
+  try {
+    await prisma.dayTemplate.create({
+      data: {
+        name,
+        entries: { create: entries },
+      },
+    });
+  } catch (e) {
+    if (
+      e &&
+      typeof e === "object" &&
+      "code" in e &&
+      (e as { code: string }).code === "P2002"
+    ) {
+      throw new Error(`"${name}" already exists`);
+    }
+    throw e;
+  }
+  revalidatePath("/foods");
+}
+
+export async function updateDayTemplate(id: string, formData: FormData) {
+  const foods = await prisma.food.findMany({ select: { id: true, isLoggedByUnit: true } });
+  const foodMap = new Map(foods.map((f) => [f.id, f]));
+  const { name, entries } = parseDayTemplateForm(formData, foodMap);
+
+  await prisma.$transaction([
+    prisma.dayTemplateEntry.deleteMany({ where: { dayTemplateId: id } }),
+    prisma.dayTemplate.update({
+      where: { id },
+      data: {
+        name,
+        entries: { create: entries },
+      },
+    }),
+  ]);
+  revalidatePath("/foods");
+}
+
+export async function deleteDayTemplate(id: string) {
+  await prisma.dayTemplate.delete({ where: { id } });
   revalidatePath("/foods");
 }

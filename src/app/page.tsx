@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { LogMealForm } from "./LogMealForm";
 import { MealGroup } from "./MealGroup";
 import { DateNav } from "./DateNav";
+import { DayTools } from "./DayTools";
 import { MEAL_TYPES } from "@/lib/mealTypes";
 import { ProgressRing } from "@/components/ProgressRing";
 import { dateOnlyFromParam, dateParam, addDays, isSameDate } from "@/lib/dateOnly";
@@ -18,12 +19,13 @@ export default async function TodayPage({
   const today = dateOnlyFromParam(undefined);
   const isToday = isSameDate(selectedDate, today);
 
-  const [foods, recipes, entries, goals] = await Promise.all([
+  const [foods, recipes, templates, entries, goals] = await Promise.all([
     prisma.food.findMany({ orderBy: { name: "asc" } }),
     prisma.recipe.findMany({
       orderBy: { name: "asc" },
       include: { ingredients: { include: { food: true } } },
     }),
+    prisma.dayTemplate.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.mealEntry.findMany({
       where: { date: selectedDate },
       orderBy: { createdAt: "asc" },
@@ -120,6 +122,8 @@ export default async function TodayPage({
           </div>
         )}
       </div>
+
+      <DayTools templates={templates} date={dateParam(selectedDate)} entryCount={entries.length} />
 
       <LogMealForm foods={foods} recipes={recipesForUi} date={dateParam(selectedDate)} />
 
