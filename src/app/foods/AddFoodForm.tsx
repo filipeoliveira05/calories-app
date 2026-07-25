@@ -78,7 +78,7 @@ export function AddFoodForm() {
         Add
       </button>
 
-      <label className="col-span-5 mt-1 flex items-center gap-2 text-xs text-ink-muted">
+      <label className="col-span-5 mt-1 inline-flex w-fit items-center justify-self-start gap-2 text-xs text-ink-muted">
         <input
           type="checkbox"
           name="isLoggedByUnit"
