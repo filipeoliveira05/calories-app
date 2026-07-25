@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { createRecipe } from "./actions";
 import { IngredientRows, ingredientTotals, type Food, type IngredientDraft } from "./IngredientRows";
+import { MealTypePicker } from "./MealTypePicker";
 
 const inputClasses =
   "w-full rounded-xl border border-hairline bg-bg px-2.5 py-2 text-sm text-ink focus:border-sage focus:outline-none";
@@ -37,6 +38,8 @@ export function AddRecipeForm({ foods }: { foods: Food[] }) {
         <label className="text-xs text-ink-muted">Recipe name</label>
         <input name="name" placeholder="e.g. Breakfast bowl" required className={inputClasses} />
       </div>
+
+      <MealTypePicker />
 
       <IngredientRows foods={foods} ingredients={ingredients} onChange={setIngredients} />
 

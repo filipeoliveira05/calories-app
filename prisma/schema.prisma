@@ -46,10 +46,11 @@ model Food {
 }
 
 model Recipe {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String     @id @default(cuid())
+  name      String     @unique
+  mealTypes MealType[] @default([])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   ingredients RecipeIngredient[]
 }

@@ -15,6 +15,7 @@ export default async function FoodsPage() {
   const recipesForUi = recipes.map((recipe) => ({
     id: recipe.id,
     name: recipe.name,
+    mealTypes: recipe.mealTypes,
     ingredients: recipe.ingredients.map((ri) => ({
       id: ri.id,
       foodId: ri.foodId,

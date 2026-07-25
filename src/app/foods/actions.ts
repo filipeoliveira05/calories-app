@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { FOOD_CATEGORIES } from "@/lib/foodCategories";
-import type { FoodCategory } from "@/generated/prisma/enums";
+import { MEAL_TYPES } from "@/lib/mealTypes";
+import type { FoodCategory, MealType } from "@/generated/prisma/enums";
 
 function parseFoodForm(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
@@ -103,7 +104,10 @@ function parseRecipeForm(formData: FormData, foods: Map<string, { isLoggedByUnit
 
   const foodIds = formData.getAll("ingredientFoodId").map(String);
   const amounts = formData.getAll("ingredientAmount").map(String);
+  const mealTypes = formData.getAll("mealTypes").map(String) as MealType[];
 
+  if (mealTypes.some((m) => !MEAL_TYPES.includes(m)))
+    throw new Error("Invalid meal type");
   if (foodIds.length === 0) throw new Error("Add at least one ingredient");
 
   const ingredients: IngredientInput[] = foodIds.map((foodId, i) => {
@@ -119,18 +123,19 @@ function parseRecipeForm(formData: FormData, foods: Map<string, { isLoggedByUnit
     };
   });
 
-  return { name, ingredients };
+  return { name, mealTypes, ingredients };
 }
 
 export async function createRecipe(formData: FormData) {
   const foods = await prisma.food.findMany({ select: { id: true, isLoggedByUnit: true } });
   const foodMap = new Map(foods.map((f) => [f.id, f]));
-  const { name, ingredients } = parseRecipeForm(formData, foodMap);
+  const { name, mealTypes, ingredients } = parseRecipeForm(formData, foodMap);
 
   try {
     await prisma.recipe.create({
       data: {
         name,
+        mealTypes,
         ingredients: { create: ingredients },
       },
     });
@@ -151,7 +156,7 @@ export async function createRecipe(formData: FormData) {
 export async function updateRecipe(id: string, formData: FormData) {
   const foods = await prisma.food.findMany({ select: { id: true, isLoggedByUnit: true } });
   const foodMap = new Map(foods.map((f) => [f.id, f]));
-  const { name, ingredients } = parseRecipeForm(formData, foodMap);
+  const { name, mealTypes, ingredients } = parseRecipeForm(formData, foodMap);
 
   await prisma.$transaction([
     prisma.recipeIngredient.deleteMany({ where: { recipeId: id } }),
@@ -159,6 +164,7 @@ export async function updateRecipe(id: string, formData: FormData) {
       where: { id },
       data: {
         name,
+        mealTypes,
         ingredients: { create: ingredients },
       },
     }),

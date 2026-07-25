@@ -3,6 +3,9 @@
 import { useState, useTransition } from "react";
 import { updateRecipe, deleteRecipe } from "./actions";
 import { IngredientRows, ingredientTotals, type Food, type IngredientDraft } from "./IngredientRows";
+import { MealTypePicker } from "./MealTypePicker";
+import { MEAL_TYPE_LABELS } from "@/lib/mealTypes";
+import type { MealType } from "@/generated/prisma/enums";
 
 export type RecipeIngredient = {
   id: string;
@@ -16,6 +19,7 @@ export type RecipeIngredient = {
 export type Recipe = {
   id: string;
   name: string;
+  mealTypes: MealType[];
   ingredients: RecipeIngredient[];
 };
 
@@ -60,6 +64,7 @@ export function RecipeCard({ recipe, foods }: { recipe: Recipe; foods: Food[] })
         className="mb-3 flex flex-col gap-3 rounded-2xl bg-surface-raised p-4 shadow-sm"
       >
         <input name="name" defaultValue={recipe.name} required className={inputClasses} />
+        <MealTypePicker defaultValues={recipe.mealTypes} />
         <IngredientRows foods={foods} ingredients={ingredients} onChange={setIngredients} />
         <div className="flex items-center gap-3">
           {hasEditPreview && (
@@ -92,7 +97,19 @@ export function RecipeCard({ recipe, foods }: { recipe: Recipe; foods: Food[] })
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate font-medium">{recipe.name}</p>
-          <ul className="mt-0.5 flex flex-col gap-0.5 text-xs text-ink-muted">
+          {recipe.mealTypes.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {recipe.mealTypes.map((mt) => (
+                <span
+                  key={mt}
+                  className="rounded-full bg-sage-soft px-2 py-0.5 text-[0.65rem] font-medium text-sage"
+                >
+                  {MEAL_TYPE_LABELS[mt]}
+                </span>
+              ))}
+            </div>
+          )}
+          <ul className="mt-1.5 flex flex-col gap-0.5 text-xs text-ink-muted">
             {recipe.ingredients.map((ri) => {
               const food = foodMap.get(ri.foodId);
               const amount = food?.isLoggedByUnit
