@@ -31,7 +31,7 @@ export function WeeklyAverageRow({
           {formatWeekLabel(weekStart)}
         </span>
         <span className="font-medium tabular-nums">
-          {average.toFixed(1)} kg{" "}
+          {average.toFixed(2)} kg{" "}
           <span className="text-xs text-ink-muted">
             ({sortedDays.length} {sortedDays.length === 1 ? "entry" : "entries"})
           </span>
