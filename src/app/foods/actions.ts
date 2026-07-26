@@ -29,8 +29,9 @@ function parseFoodForm(formData: FormData) {
       throw new Error("Grams per unit must be a positive number");
   }
 
-  const caloriesPer100g = isLoggedByUnit ? (calories / gramsPerUnit) * 100 : calories;
-  const proteinPer100g = isLoggedByUnit ? (protein / gramsPerUnit) * 100 : protein;
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const caloriesPer100g = round2(isLoggedByUnit ? (calories / gramsPerUnit) * 100 : calories);
+  const proteinPer100g = round2(isLoggedByUnit ? (protein / gramsPerUnit) * 100 : protein);
 
   return {
     name,
@@ -45,8 +46,9 @@ function parseFoodForm(formData: FormData) {
 
 export async function createFood(formData: FormData) {
   const data = parseFoodForm(formData);
+  let food;
   try {
-    await prisma.food.create({ data });
+    food = await prisma.food.create({ data });
   } catch (e) {
     if (
       e &&
@@ -59,6 +61,8 @@ export async function createFood(formData: FormData) {
     throw e;
   }
   revalidatePath("/foods");
+  revalidatePath("/");
+  return food;
 }
 
 export async function updateFood(id: string, formData: FormData) {
