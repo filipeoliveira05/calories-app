@@ -10,6 +10,7 @@ export const FOOD_CATEGORIES: FoodCategory[] = [
   "FAT_OIL",
   "SWEETS",
   "SNACK",
+  "MIX",
   "OTHER",
 ];
 
@@ -23,5 +24,6 @@ export const FOOD_CATEGORY_LABELS: Record<FoodCategory, string> = {
   FAT_OIL: "Fat / Oil",
   SWEETS: "Sweets",
   SNACK: "Snack",
+  MIX: "Mix",
   OTHER: "Other",
 };
