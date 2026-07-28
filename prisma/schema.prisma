@@ -26,6 +26,7 @@ enum FoodCategory {
   FAT_OIL
   SWEETS
   SNACK
+  MIX
   OTHER
 }
 
