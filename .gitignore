@@ -44,3 +44,7 @@ next-env.d.ts
 
 # local design-brainstorm specs, not meant to be tracked/shared
 /docs
+
+# source files from the one-off historical Excel import, kept locally for
+# reference but not meant to be tracked/shared
+/historical-import
