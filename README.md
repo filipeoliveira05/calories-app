@@ -14,7 +14,7 @@ Live at: https://calories-app-sigma-three.vercel.app (password-gated)
 
 ## Data model
 
-- `Food` — personal nutrition database (calories/protein per 100g), source of truth, added manually (no CSV import)
+- `Food` — personal nutrition database (calories/protein per 100g), source of truth, categorized (including `MIX` for combo dishes like "arroz com peixe" that don't reduce to a single ingredient category), normally added manually through the Foods page UI
 - `MealEntry` — logged meals; snapshots the food's calorie/protein values at creation time so later edits to a `Food` don't retroactively change historical logs
 - `WeightEntry` — one per day, weekly average computed in `src/lib/weeks.ts`
 - `Goals` — single-row daily calorie/protein targets, plus an optional personal-info profile (sex, birth date, height, activity level, weight goal type/rate, protein target) used to derive suggested goals via Mifflin-St Jeor (`src/lib/nutritionGoals.ts`)
@@ -52,3 +52,7 @@ All core pages (Foods, Today, Weight, Stats, Settings) are built and deployed, w
 - **Stats**: weekly averages against goals, with a custom date range filter plus quick presets (last month/3 months/year).
 
 Remaining candidate: a service worker for automatic Android install prompts (currently manual "Add to Home Screen" only, which is fine for now).
+
+## Historical data
+
+The full ~5 years of the original Excel food log (2021-06-19 through present) has been backfilled into `MealEntry`/`Food`, parsed and validated day-by-day against the sheet's own totals before import. This was a one-off migration (a local Prisma script, not part of the app), not an ongoing import feature — new `Food`/`MealEntry` records are otherwise only ever created through the app itself.
