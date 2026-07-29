@@ -15,7 +15,7 @@ Live at: https://calories-app-sigma-three.vercel.app (password-gated)
 ## Data model
 
 - `Food` — personal nutrition database (calories/protein per 100g), source of truth, categorized (including `MIX` for combo dishes like "arroz com peixe" that don't reduce to a single ingredient category), normally added manually through the Foods page UI
-- `MealEntry` — logged meals; snapshots the food's calorie/protein values at creation time so later edits to a `Food` don't retroactively change historical logs
+- `MealEntry` — logged meals; snapshots the food's calorie/protein values at creation time so later edits to a `Food` don't retroactively change historical logs. `foodId` is nullable (`onDelete: SetNull`), so deleting a `Food` doesn't delete its past entries — they just lose the live link and surface in the Foods page's History tab, from which they can be restored (recreating the `Food` from the snapshot and re-linking those entries)
 - `WeightEntry` — one per day, weekly average computed in `src/lib/weeks.ts`
 - `Goals` — single-row daily calorie/protein targets, plus an optional personal-info profile (sex, birth date, height, activity level, weight goal type/rate, protein target) used to derive suggested goals via Mifflin-St Jeor (`src/lib/nutritionGoals.ts`)
 - `Recipe` / `RecipeIngredient` — named groups of foods with fixed amounts (grams or unit quantity), logged as a whole from Today; each ingredient snapshots into its own `MealEntry` at log time, same as logging a food directly. A `Food` referenced by a recipe can't be deleted until it's removed from that recipe (`onDelete: Restrict`). `Recipe` can also carry optional `mealTypes` tags, used only for filtering/sorting on the Foods page — they don't restrict which meal type it's actually logged under
@@ -46,6 +46,7 @@ All core pages (Foods, Today, Weight, Stats, Settings) are built and deployed, w
 - **Foods**: categorized, and either gram-based or unit-based (e.g. "2 yogurts") for foods that are naturally counted rather than weighed. Can also be quick-added inline from Today, so logging never requires a detour to the Foods page.
 - **Recipes**: group foods eaten together under one name with fixed amounts; taggable by meal type for organization only. Today can log a whole recipe in one action, or turn an already-logged meal into a new recipe directly.
 - **Day Templates**: the tier above recipes — save/apply a full day's eating pattern (e.g. "Standard Monday") in one action, built from foods and/or recipes assigned to meal types.
+- **History** (Foods tab): search foods logged in the past whose `Food` was since deleted, and restore one back into the database from its most recent logged snapshot, re-linking its old entries.
 - **Today**: log grouped by meal type (5 types, breakfast to dinner, defaulting to the current time of day), with a date navigator (incl. jump-to-today) and inline amount editing (tap to edit, with quick +/- adjust buttons).
 - **Weight**: logged in 0.05kg increments with weekly averages broken down per day.
 - **Settings**: a Personal Info profile calculates suggested daily calorie/protein goals from body stats and activity level, alongside manual goal entry.
