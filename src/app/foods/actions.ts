@@ -71,6 +71,53 @@ export async function updateFood(id: string, formData: FormData) {
   revalidatePath("/foods");
 }
 
+export async function restoreArchivedFood(archived: {
+  name: string;
+  caloriesPer100g: number;
+  proteinPer100g: number;
+  unitLabel: string | null;
+  gramsPerUnit: number | null;
+}) {
+  const { name, caloriesPer100g, proteinPer100g, unitLabel, gramsPerUnit } = archived;
+  const isLoggedByUnit = unitLabel !== null && gramsPerUnit !== null;
+
+  let food;
+  try {
+    food = await prisma.food.create({
+      data: {
+        name,
+        caloriesPer100g,
+        proteinPer100g,
+        category: "OTHER",
+        isLoggedByUnit,
+        unitLabel: isLoggedByUnit ? unitLabel : null,
+        gramsPerUnit: isLoggedByUnit ? gramsPerUnit : null,
+      },
+    });
+  } catch (e) {
+    if (
+      e &&
+      typeof e === "object" &&
+      "code" in e &&
+      (e as { code: string }).code === "P2002"
+    ) {
+      throw new Error(`"${name}" already exists`);
+    }
+    throw e;
+  }
+
+  // Re-link the past entries that produced this archived food to the newly
+  // restored one, so it no longer shows up as archived.
+  await prisma.mealEntry.updateMany({
+    where: { foodName: name, foodId: null },
+    data: { foodId: food.id },
+  });
+
+  revalidatePath("/foods");
+  revalidatePath("/");
+  return food;
+}
+
 export async function deleteFood(id: string) {
   try {
     await prisma.food.delete({ where: { id } });

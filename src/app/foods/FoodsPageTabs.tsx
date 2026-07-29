@@ -5,6 +5,7 @@ import { AddFoodForm } from "./AddFoodForm";
 import { FoodsList } from "./FoodsList";
 import { RecipesList } from "./RecipesList";
 import { DayTemplatesList } from "./DayTemplatesList";
+import { ArchivedFoodsList, type ArchivedFood } from "./ArchivedFoodsList";
 import type { Food } from "./IngredientRows";
 import type { Recipe } from "./RecipeCard";
 import type { DayTemplate } from "./DayTemplateCard";
@@ -13,12 +14,14 @@ export function FoodsPageTabs({
   foods,
   recipes,
   templates,
+  archivedFoods,
 }: {
   foods: Food[];
   recipes: Recipe[];
   templates: DayTemplate[];
+  archivedFoods: ArchivedFood[];
 }) {
-  const [tab, setTab] = useState<"foods" | "recipes" | "templates">("foods");
+  const [tab, setTab] = useState<"foods" | "recipes" | "templates" | "history">("foods");
 
   return (
     <>
@@ -47,6 +50,14 @@ export function FoodsPageTabs({
         >
           Templates
         </button>
+        <button
+          onClick={() => setTab("history")}
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            tab === "history" ? "bg-sage text-white" : "bg-surface-raised text-ink-muted"
+          }`}
+        >
+          History
+        </button>
       </div>
 
       {tab === "foods" ? (
@@ -60,8 +71,10 @@ export function FoodsPageTabs({
         </>
       ) : tab === "recipes" ? (
         <RecipesList recipes={recipes} foods={foods} />
-      ) : (
+      ) : tab === "templates" ? (
         <DayTemplatesList templates={templates} foods={foods} recipes={recipes} />
+      ) : (
+        <ArchivedFoodsList archivedFoods={archivedFoods} />
       )}
     </>
   );
