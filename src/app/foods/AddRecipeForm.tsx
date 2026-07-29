@@ -11,6 +11,7 @@ const inputClasses =
 export function AddRecipeForm({ foods }: { foods: Food[] }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [ingredients, setIngredients] = useState<IngredientDraft[]>([]);
 
@@ -22,11 +23,16 @@ export function AddRecipeForm({ foods }: { foods: Food[] }) {
       ref={formRef}
       action={(formData) => {
         setError(null);
+        setSuccess(null);
         startTransition(async () => {
           try {
+            const name = formData.get("name");
             await createRecipe(formData);
             formRef.current?.reset();
             setIngredients([]);
+            setSuccess(
+              typeof name === "string" && name ? `"${name}" added` : "Recipe added"
+            );
           } catch (e) {
             setError(e instanceof Error ? e.message : "Failed to add recipe");
           }
@@ -59,6 +65,19 @@ export function AddRecipeForm({ foods }: { foods: Food[] }) {
       </div>
 
       {error && <p className="text-xs text-danger">{error}</p>}
+      {success && (
+        <p className="flex items-start gap-1.5 text-xs text-sage">
+          <span className="whitespace-pre-line">{success}</span>
+          <button
+            type="button"
+            onClick={() => setSuccess(null)}
+            aria-label="Dismiss"
+            className="shrink-0 font-medium text-sage hover:opacity-70"
+          >
+            ×
+          </button>
+        </p>
+      )}
     </form>
   );
 }

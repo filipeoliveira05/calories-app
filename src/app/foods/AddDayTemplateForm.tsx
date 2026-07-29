@@ -12,6 +12,7 @@ const inputClasses =
 export function AddDayTemplateForm({ foods, recipes }: { foods: Food[]; recipes: Recipe[] }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [entries, setEntries] = useState<DayTemplateDraftEntry[]>([]);
 
@@ -20,11 +21,16 @@ export function AddDayTemplateForm({ foods, recipes }: { foods: Food[]; recipes:
       ref={formRef}
       action={(formData) => {
         setError(null);
+        setSuccess(null);
         startTransition(async () => {
           try {
+            const name = formData.get("name");
             await createDayTemplate(formData);
             formRef.current?.reset();
             setEntries([]);
+            setSuccess(
+              typeof name === "string" && name ? `"${name}" added` : "Template added"
+            );
           } catch (e) {
             setError(e instanceof Error ? e.message : "Failed to add template");
           }
@@ -66,6 +72,20 @@ export function AddDayTemplateForm({ foods, recipes }: { foods: Food[]; recipes:
             onClick={() => setError(null)}
             aria-label="Dismiss"
             className="shrink-0 font-medium text-danger hover:opacity-70"
+          >
+            ×
+          </button>
+        </p>
+      )}
+
+      {success && (
+        <p className="flex items-start gap-1.5 text-xs text-sage">
+          <span className="whitespace-pre-line">{success}</span>
+          <button
+            type="button"
+            onClick={() => setSuccess(null)}
+            aria-label="Dismiss"
+            className="shrink-0 font-medium text-sage hover:opacity-70"
           >
             ×
           </button>

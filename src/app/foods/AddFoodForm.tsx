@@ -7,6 +7,7 @@ import { FoodFields, FoodUnitToggleFields } from "./FoodFields";
 export function AddFoodForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isLoggedByUnit, setIsLoggedByUnit] = useState(false);
 
@@ -15,11 +16,18 @@ export function AddFoodForm() {
       ref={formRef}
       action={(formData) => {
         setError(null);
+        setSuccess(null);
         startTransition(async () => {
           try {
+            const name = formData.get("name");
             await createFood(formData);
             formRef.current?.reset();
             setIsLoggedByUnit(false);
+            setSuccess(
+              typeof name === "string" && name
+                ? `"${name}" added`
+                : "Food added"
+            );
           } catch (e) {
             setError(e instanceof Error ? e.message : "Failed to add food");
           }
@@ -50,6 +58,20 @@ export function AddFoodForm() {
             onClick={() => setError(null)}
             aria-label="Dismiss"
             className="shrink-0 font-medium text-danger hover:opacity-70"
+          >
+            ×
+          </button>
+        </span>
+      )}
+
+      {success && (
+        <span className="col-span-5 flex items-start gap-1.5 text-xs text-sage">
+          <span className="whitespace-pre-line">{success}</span>
+          <button
+            type="button"
+            onClick={() => setSuccess(null)}
+            aria-label="Dismiss"
+            className="shrink-0 font-medium text-sage hover:opacity-70"
           >
             ×
           </button>
