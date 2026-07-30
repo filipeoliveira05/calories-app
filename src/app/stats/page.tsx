@@ -29,7 +29,14 @@ export default async function StatsPage() {
     }
   }
 
-  const mealWeekGroups = groupByWeek([...dailyTotals.values()], (d) => d.date);
+  // Days with no calories or no protein logged are gaps in the diary
+  // (or pre-protein-tracking history), not real 0-intake days — drop them
+  // so they don't drag the weekly average down.
+  const validDays = [...dailyTotals.values()].filter(
+    (d) => d.calories !== 0 && d.protein !== 0,
+  );
+
+  const mealWeekGroups = groupByWeek(validDays, (d) => d.date);
   const weightWeekGroups = groupByWeek(weightEntries, (e) => e.date);
 
   const allWeekKeys = new Set([
