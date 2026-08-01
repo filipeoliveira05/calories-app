@@ -4,7 +4,12 @@ import { StatsCharts } from "./StatsCharts";
 
 export const dynamic = "force-dynamic";
 
-export default async function StatsPage() {
+export default async function StatsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; to?: string }>;
+}) {
+  const { from, to } = await searchParams;
   const [mealEntries, weightEntries] = await Promise.all([
     prisma.mealEntry.findMany({ orderBy: { date: "asc" } }),
     prisma.weightEntry.findMany({ orderBy: { date: "asc" } }),
@@ -83,7 +88,7 @@ export default async function StatsPage() {
           Log some meals and weight entries to see weekly trends here.
         </p>
       ) : (
-        <StatsCharts data={chartData} />
+        <StatsCharts data={chartData} initialFrom={from} initialTo={to} />
       )}
     </div>
   );

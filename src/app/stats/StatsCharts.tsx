@@ -144,16 +144,49 @@ function daysAgo(days: number, minDate: string): string {
   return iso < minDate ? minDate : iso;
 }
 
-export function StatsCharts({ data }: { data: WeekPoint[] }) {
+function clampToRange(value: string | undefined, minDate: string, maxDate: string): string | null {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  if (value < minDate || value > maxDate) return null;
+  return value;
+}
+
+export function StatsCharts({
+  data,
+  initialFrom,
+  initialTo,
+}: {
+  data: WeekPoint[];
+  initialFrom?: string;
+  initialTo?: string;
+}) {
   const minDate = data[0].weekStart;
   const maxDate = data[data.length - 1].weekStart;
-  const [from, setFrom] = useState(minDate);
-  const [to, setTo] = useState(maxDate);
+  const [from, setFrom] = useState(
+    () => clampToRange(initialFrom, minDate, maxDate) ?? minDate,
+  );
+  const [to, setTo] = useState(
+    () => clampToRange(initialTo, minDate, maxDate) ?? maxDate,
+  );
 
   const filtered = useMemo(
     () => data.filter((d) => d.weekStart >= from && d.weekStart <= to),
     [data, from, to],
   );
+
+  function updateRange(newFrom: string, newTo: string) {
+    setFrom(newFrom);
+    setTo(newTo);
+    // Filtering happens client-side from `data`, so the URL only needs to
+    // reflect the selection for reload/share purposes — updating it via the
+    // History API directly (instead of next/navigation's router) avoids
+    // triggering a full server round-trip and Prisma re-query on every
+    // range change.
+    const url =
+      newFrom === minDate && newTo === maxDate
+        ? "/stats"
+        : `/stats?from=${newFrom}&to=${newTo}`;
+    window.history.replaceState(null, "", url);
+  }
 
   return (
     <div>
@@ -166,11 +199,9 @@ export function StatsCharts({ data }: { data: WeekPoint[] }) {
               key={preset.label}
               onClick={() => {
                 if (isActive) {
-                  setFrom(minDate);
-                  setTo(maxDate);
+                  updateRange(minDate, maxDate);
                 } else {
-                  setFrom(presetFrom);
-                  setTo(maxDate);
+                  updateRange(presetFrom, maxDate);
                 }
               }}
               className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -190,7 +221,7 @@ export function StatsCharts({ data }: { data: WeekPoint[] }) {
             value={from}
             min={minDate}
             max={to}
-            onChange={(e) => setFrom(e.target.value)}
+            onChange={(e) => e.target.value && updateRange(e.target.value, to)}
             className={inputClasses}
           />
         </label>
@@ -201,16 +232,13 @@ export function StatsCharts({ data }: { data: WeekPoint[] }) {
             value={to}
             min={from}
             max={maxDate}
-            onChange={(e) => setTo(e.target.value)}
+            onChange={(e) => e.target.value && updateRange(from, e.target.value)}
             className={inputClasses}
           />
         </label>
         {(from !== minDate || to !== maxDate) && (
           <button
-            onClick={() => {
-              setFrom(minDate);
-              setTo(maxDate);
-            }}
+            onClick={() => updateRange(minDate, maxDate)}
             className="text-xs font-medium text-ink-muted hover:underline"
           >
             Reset
