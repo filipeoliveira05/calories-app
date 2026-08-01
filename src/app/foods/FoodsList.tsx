@@ -18,14 +18,38 @@ type Food = {
 
 export function FoodsList({ foods }: { foods: Food[] }) {
   const [filter, setFilter] = useState<FoodCategory | "ALL">("ALL");
+  const [search, setSearch] = useState("");
 
-  const filteredFoods = useMemo(
-    () => (filter === "ALL" ? foods : foods.filter((f) => f.category === filter)),
-    [foods, filter],
-  );
+  const filteredFoods = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return foods.filter(
+      (f) =>
+        (filter === "ALL" || f.category === filter) &&
+        (query === "" || f.name.toLowerCase().includes(query)),
+    );
+  }, [foods, filter, search]);
 
   return (
     <>
+      <div className="mb-3 relative">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search foods..."
+          className="w-full rounded-xl border border-hairline bg-bg px-3 py-2 pr-8 text-sm"
+        />
+        {search !== "" && (
+          <button
+            onClick={() => setSearch("")}
+            aria-label="Clear search"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-muted"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
       <div className="mb-3 flex flex-wrap gap-1.5">
         <button
           onClick={() => setFilter("ALL")}
@@ -53,7 +77,9 @@ export function FoodsList({ foods }: { foods: Food[] }) {
       </div>
 
       {filteredFoods.length === 0 ? (
-        <p className="text-sm text-ink-muted">No foods in this category.</p>
+        <p className="text-sm text-ink-muted">
+          {search !== "" ? "No foods match your search." : "No foods in this category."}
+        </p>
       ) : (
         <div className="rounded-2xl bg-surface-raised p-3 shadow-sm">
           <div className="grid grid-cols-[1fr_6.5rem_4.5rem_4.5rem_auto] gap-2 border-b border-hairline pb-2 text-xs font-medium text-ink-muted">
