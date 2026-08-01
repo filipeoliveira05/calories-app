@@ -49,6 +49,8 @@ As of 2026-07-22, the app has a custom warm, dark-first visual identity (replaci
 
 When adding new UI, reuse these tokens/patterns rather than reaching for default Tailwind colors (`zinc`, `blue`, etc.) or ad hoc styling.
 
+**Reference mobile viewport**: the user tests on a 393×851 CSS-pixel viewport (DPR 2.75) via Chrome DevTools device emulation. Use this as the concrete "phone" width when reasoning about responsive/overflow issues — Tailwind's default `sm` breakpoint (640px) sits well above it, so this viewport always falls in the below-`sm` case.
+
 # Working preferences
 
 - **Commits**: commit after each completed task automatically, without asking first. Match the style of existing commit messages (short, conventional-style prefix like `feat:`/`fix:`/`perf:`/`chore:`/`docs:`, description framed in terms of the project/feature, not the mechanics of the change). Do NOT push to `main` after committing — commits stay local until the user explicitly says to push (this repo auto-deploys on push to `main`, so pushing is a separate, deliberate step).
