@@ -77,53 +77,55 @@ export function ArchivedFoodsList({ archivedFoods }: { archivedFoods: ArchivedFo
       ) : filtered.length === 0 ? (
         <p className="text-sm text-ink-muted">No matches.</p>
       ) : (
-        <div className="rounded-2xl bg-surface-raised p-3 shadow-sm">
-          <div className="grid grid-cols-[1fr_6.5rem_4.5rem_5.5rem_auto] gap-2 border-b border-hairline pb-2 text-xs font-medium text-ink-muted">
-            <span className="min-w-0 truncate">Name</span>
-            <span>kcal/100g</span>
-            <span>Protein/100g</span>
-            <span>Last logged</span>
-            <div className="invisible" aria-hidden>
-              <button className="rounded-lg px-2 py-1 text-xs font-medium">Restore</button>
-            </div>
-          </div>
-          {filtered.map((food) => (
-            <div
-              key={food.name}
-              className="grid grid-cols-[1fr_6.5rem_4.5rem_5.5rem_auto] items-center gap-2 border-b border-hairline py-2 text-sm last:border-b-0"
-            >
-              <div className="min-w-0">
-                <span className="block truncate font-medium">{food.name}</span>
-                <span className="block truncate text-xs text-ink-muted">
-                  Logged {food.timesLogged}×
-                  {food.unitLabel ? ` · ${food.gramsPerUnit}g / ${food.unitLabel}` : ""}
-                </span>
-                {errors[food.name] && (
-                  <span className="mt-0.5 flex items-start gap-1.5 text-xs text-danger">
-                    <span className="whitespace-pre-line">{errors[food.name]}</span>
-                    <button
-                      type="button"
-                      onClick={() => dismissError(food.name)}
-                      aria-label="Dismiss"
-                      className="shrink-0 font-medium text-danger hover:opacity-70"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
+        <div className="rounded-2xl bg-surface-raised p-3 shadow-sm overflow-x-auto">
+          <div className="min-w-[34rem] sm:min-w-0">
+            <div className="grid grid-cols-[8rem_6.5rem_4.5rem_5.5rem_1fr] sm:grid-cols-[1fr_6.5rem_4.5rem_5.5rem_auto] gap-2 border-b border-hairline pb-2 text-xs font-medium text-ink-muted">
+              <span>Name</span>
+              <span>kcal/100g</span>
+              <span>Protein/100g</span>
+              <span>Last logged</span>
+              <div className="invisible" aria-hidden>
+                <button className="rounded-lg px-2 py-1 text-xs font-medium">Restore</button>
               </div>
-              <span className="tabular-nums text-ink-muted">{food.caloriesPer100g} kcal</span>
-              <span className="tabular-nums text-ink-muted">{food.proteinPer100g} g</span>
-              <span className="tabular-nums text-ink-muted">{food.lastLoggedAt}</span>
-              <button
-                onClick={() => restore(food)}
-                disabled={isPending && pendingName === food.name}
-                className="rounded-lg px-2 py-1 text-xs font-medium text-sage hover:bg-sage-soft disabled:opacity-50"
-              >
-                Restore
-              </button>
             </div>
-          ))}
+            {filtered.map((food) => (
+              <div
+                key={food.name}
+                className="grid grid-cols-[8rem_6.5rem_4.5rem_5.5rem_1fr] sm:grid-cols-[1fr_6.5rem_4.5rem_5.5rem_auto] items-start gap-2 border-b border-hairline py-2 text-sm last:border-b-0"
+              >
+                <div className="min-w-0">
+                  <span className="block break-words font-medium">{food.name}</span>
+                  <span className="block break-words text-xs text-ink-muted">
+                    Logged {food.timesLogged}×
+                    {food.unitLabel ? ` · ${food.gramsPerUnit}g / ${food.unitLabel}` : ""}
+                  </span>
+                  {errors[food.name] && (
+                    <span className="mt-0.5 flex items-start gap-1.5 text-xs text-danger">
+                      <span className="whitespace-pre-line">{errors[food.name]}</span>
+                      <button
+                        type="button"
+                        onClick={() => dismissError(food.name)}
+                        aria-label="Dismiss"
+                        className="shrink-0 font-medium text-danger hover:opacity-70"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                </div>
+                <span className="tabular-nums text-ink-muted">{food.caloriesPer100g} kcal</span>
+                <span className="tabular-nums text-ink-muted">{food.proteinPer100g} g</span>
+                <span className="tabular-nums text-ink-muted">{food.lastLoggedAt}</span>
+                <button
+                  onClick={() => restore(food)}
+                  disabled={isPending && pendingName === food.name}
+                  className="justify-self-end rounded-lg px-2 py-1 text-xs font-medium text-sage hover:bg-sage-soft disabled:opacity-50"
+                >
+                  Restore
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </>

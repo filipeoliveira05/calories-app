@@ -47,7 +47,7 @@ export function FoodRow({ food }: { food: Food }) {
             }
           });
         }}
-        className="grid grid-cols-[1fr_6.5rem_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 last:border-b-0"
+        className="grid grid-cols-[8rem_5rem_4.5rem_4.5rem_1fr] sm:grid-cols-[1fr_5rem_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 last:border-b-0"
       >
         <input name="name" defaultValue={food.name} required className={`min-w-0 ${inputClasses}`} />
         <select name="category" defaultValue={food.category} className={inputClasses}>
@@ -75,7 +75,7 @@ export function FoodRow({ food }: { food: Food }) {
           required
           className={inputClasses}
         />
-        <div className="flex gap-1">
+        <div className="flex justify-end gap-1">
           <button
             type="button"
             onClick={() => setEditing(false)}
@@ -148,11 +148,11 @@ export function FoodRow({ food }: { food: Food }) {
   }
 
   return (
-    <div className="grid grid-cols-[1fr_6.5rem_4.5rem_4.5rem_auto] items-center gap-2 border-b border-hairline py-2 text-sm last:border-b-0">
+    <div className="grid grid-cols-[8rem_5rem_4.5rem_4.5rem_1fr] sm:grid-cols-[1fr_5rem_4.5rem_4.5rem_auto] items-start gap-2 border-b border-hairline py-2 text-sm last:border-b-0">
       <div className="min-w-0">
-        <span className="block truncate font-medium">{food.name}</span>
+        <span className="block break-words font-medium">{food.name}</span>
         {food.isLoggedByUnit && (
-          <span className="block truncate text-xs text-ink-muted">
+          <span className="block break-words text-xs text-ink-muted">
             {food.gramsPerUnit}g / {food.unitLabel}
           </span>
         )}
@@ -175,7 +175,7 @@ export function FoodRow({ food }: { food: Food }) {
       </span>
       <span className="tabular-nums text-ink-muted">{food.caloriesPer100g} kcal</span>
       <span className="tabular-nums text-ink-muted">{food.proteinPer100g} g</span>
-      <div className="flex gap-1">
+      <div className="flex justify-end gap-1">
         <button
           onClick={() => setEditing(true)}
           className="rounded-lg px-2 py-1 text-xs font-medium text-ink-muted hover:bg-surface"

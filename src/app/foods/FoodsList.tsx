@@ -122,31 +122,30 @@ export function FoodsList({ foods }: { foods: Food[] }) {
           {search !== "" ? "No foods match your search." : "No foods in this category."}
         </p>
       ) : (
-        <div className="rounded-2xl bg-surface-raised p-3 shadow-sm">
-          <div className="grid grid-cols-[1fr_6.5rem_4.5rem_4.5rem_auto] gap-2 border-b border-hairline pb-2 text-xs font-medium text-ink-muted">
-            <button
-              onClick={() => toggleSort("name")}
-              className="min-w-0 truncate text-left"
-            >
-              Name{sortIndicator("name")}
-            </button>
-            <button onClick={() => toggleSort("category")} className="text-left">
-              Category{sortIndicator("category")}
-            </button>
-            <button onClick={() => toggleSort("calories")} className="text-left">
-              kcal/100g{sortIndicator("calories")}
-            </button>
-            <button onClick={() => toggleSort("protein")} className="text-left">
-              Protein/100g{sortIndicator("protein")}
-            </button>
-            <div className="invisible flex gap-1" aria-hidden>
-              <button className="rounded-lg px-2 py-1 text-xs font-medium">Edit</button>
-              <button className="rounded-lg px-2 py-1 text-xs font-medium">Delete</button>
+        <div className="rounded-2xl bg-surface-raised p-3 shadow-sm overflow-x-auto">
+          <div className="min-w-[30rem] sm:min-w-0">
+            <div className="grid grid-cols-[8rem_5rem_4.5rem_4.5rem_1fr] sm:grid-cols-[1fr_5rem_4.5rem_4.5rem_auto] gap-2 border-b border-hairline pb-2 text-xs font-medium text-ink-muted">
+              <button onClick={() => toggleSort("name")} className="text-left">
+                Name{sortIndicator("name")}
+              </button>
+              <button onClick={() => toggleSort("category")} className="text-left">
+                Category{sortIndicator("category")}
+              </button>
+              <button onClick={() => toggleSort("calories")} className="text-left">
+                kcal/100g{sortIndicator("calories")}
+              </button>
+              <button onClick={() => toggleSort("protein")} className="text-left">
+                Protein/100g{sortIndicator("protein")}
+              </button>
+              <div className="invisible flex gap-1" aria-hidden>
+                <button className="rounded-lg px-2 py-1 text-xs font-medium">Edit</button>
+                <button className="rounded-lg px-2 py-1 text-xs font-medium">Delete</button>
+              </div>
             </div>
+            {filteredFoods.map((food) => (
+              <FoodRow key={food.id} food={food} />
+            ))}
           </div>
-          {filteredFoods.map((food) => (
-            <FoodRow key={food.id} food={food} />
-          ))}
         </div>
       )}
     </>
