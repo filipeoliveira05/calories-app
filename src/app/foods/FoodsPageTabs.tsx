@@ -23,8 +23,17 @@ export function FoodsPageTabs({
 }) {
   const [tab, setTab] = useState<"foods" | "recipes" | "templates" | "history">("foods");
 
+  const subtitle = {
+    foods: "Your personal nutrition database, per 100g.",
+    recipes: "Group foods commonly eaten together under one name.",
+    templates: "Save a full day's eating pattern to apply in one action.",
+    history: "Foods you've logged in the past that have since been deleted.",
+  }[tab];
+
   return (
     <>
+      <p className="mb-5 text-sm text-ink-muted">{subtitle}</p>
+
       <div className="mb-4 flex gap-1.5">
         <button
           onClick={() => setTab("foods")}
