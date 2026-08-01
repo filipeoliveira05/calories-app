@@ -89,7 +89,19 @@ export function GoalsForm({
         Save
       </button>
       {saved && !error && <p className="text-xs text-sage">Saved.</p>}
-      {error && <p className="text-xs text-danger">{error}</p>}
+      {error && (
+        <p className="flex items-start gap-1.5 text-xs text-danger">
+          <span className="whitespace-pre-line">{error}</span>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            aria-label="Dismiss"
+            className="shrink-0 font-medium text-danger hover:opacity-70"
+          >
+            ×
+          </button>
+        </p>
+      )}
     </div>
   );
 }

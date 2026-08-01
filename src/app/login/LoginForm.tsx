@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { login } from "./actions";
 
 export function LoginForm({ next }: { next: string }) {
   const [state, formAction, isPending] = useActionState(login, undefined);
+  const [dismissedError, setDismissedError] = useState<string | null>(null);
 
   return (
     <form
@@ -29,7 +30,19 @@ export function LoginForm({ next }: { next: string }) {
       >
         Sign in
       </button>
-      {state?.error && <p className="text-xs text-danger">{state.error}</p>}
+      {state?.error && state.error !== dismissedError && (
+        <p className="flex items-start gap-1.5 text-xs text-danger">
+          <span className="whitespace-pre-line">{state.error}</span>
+          <button
+            type="button"
+            onClick={() => setDismissedError(state.error ?? null)}
+            aria-label="Dismiss"
+            className="shrink-0 font-medium text-danger hover:opacity-70"
+          >
+            ×
+          </button>
+        </p>
+      )}
     </form>
   );
 }
