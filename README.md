@@ -43,14 +43,14 @@ Env vars (`DATABASE_URL`, `DIRECT_URL`, `APP_PASSWORD`) are set in the Vercel pr
 
 All core pages (Foods, Today, Weight, Stats, Settings) are built and deployed, with a custom warm, dark-first visual identity (see `CLAUDE.md` for the design system, and git history for the full feature-by-feature timeline).
 
-- **Foods**: categorized, and either gram-based or unit-based (e.g. "2 yogurts") for foods that are naturally counted rather than weighed. Can also be quick-added inline from Today, so logging never requires a detour to the Foods page.
-- **Recipes**: group foods eaten together under one name with fixed amounts; taggable by meal type for organization only. Today can log a whole recipe in one action, or turn an already-logged meal into a new recipe directly.
-- **Day Templates**: the tier above recipes — save/apply a full day's eating pattern (e.g. "Standard Monday") in one action, built from foods and/or recipes assigned to meal types.
+- **Foods**: categorized, and either gram-based or unit-based (e.g. "2 yogurts") for foods that are naturally counted rather than weighed. Can also be quick-added inline from Today, so logging never requires a detour to the Foods page. The list is name-searchable and sortable by any column (name, category, kcal, protein), with toggleable category filter chips.
+- **Recipes**: group foods eaten together under one name with fixed amounts; taggable by meal type for organization only. Name-searchable with toggleable meal-type filter chips. Today can log a whole recipe in one action, or turn an already-logged meal into a new recipe directly.
+- **Day Templates**: the tier above recipes — save/apply a full day's eating pattern (e.g. "Standard Monday") in one action, built from foods and/or recipes assigned to meal types. Also name-searchable.
 - **History** (Foods tab): search foods logged in the past whose `Food` was since deleted, and restore one back into the database from its most recent logged snapshot, re-linking its old entries.
-- **Today**: log grouped by meal type (5 types, breakfast to dinner, defaulting to the current time of day), with a date navigator (incl. jump-to-today) and inline amount editing (tap to edit, with quick +/- adjust buttons).
+- **Today**: log grouped by meal type (5 types, breakfast to dinner, defaulting to the current time of day), with a date navigator (incl. jump-to-today) and inline amount editing (tap to edit, with quick +/- adjust buttons). Food/recipe selection uses a searchable combobox rather than a long native dropdown, for easier picking on mobile.
 - **Weight**: logged in 0.05kg increments with weekly averages broken down per day.
 - **Settings**: a Personal Info profile calculates suggested daily calorie/protein goals from body stats and activity level, alongside manual goal entry.
-- **Stats**: weekly averages against goals, with a custom date range filter plus quick presets (last month/3 months/year).
+- **Stats**: weekly averages against goals (excluding days with nothing logged), with a custom date range filter plus quick presets (last month/3 months/year).
 
 Remaining candidate: a service worker for automatic Android install prompts (currently manual "Add to Home Screen" only, which is fine for now).
 
