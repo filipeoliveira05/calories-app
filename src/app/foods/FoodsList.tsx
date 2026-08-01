@@ -64,7 +64,7 @@ export function FoodsList({ foods }: { foods: Food[] }) {
         {FOOD_CATEGORIES.map((category) => (
           <button
             key={category}
-            onClick={() => setFilter(category)}
+            onClick={() => setFilter((prev) => (prev === category ? "ALL" : category))}
             className={`rounded-full px-3 py-1 text-xs font-medium ${
               filter === category
                 ? "bg-sage text-white"
