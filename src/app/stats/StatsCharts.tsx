@@ -21,6 +21,17 @@ type WeekPoint = {
 
 const LONG_RANGE_DAYS = 180;
 
+/**
+ * A tight Y-axis domain: a small buffer around the visible data instead of
+ * Recharts' "auto" domain, which can pad out to a much wider round number
+ * (e.g. down to 100 when the data only dips to 120). Tick placement itself
+ * is left to Recharts.
+ */
+function tightDomain(dataMin: number, dataMax: number): [number, number] {
+  const buffer = Math.max((dataMax - dataMin) * 0.05, 1);
+  return [Math.floor(dataMin - buffer), Math.ceil(dataMax + buffer)];
+}
+
 function formatTick(iso: string, longRange: boolean, multiYear: boolean): string {
   const d = new Date(`${iso}T00:00:00Z`);
   if (longRange) {
@@ -65,6 +76,13 @@ function Chart({
   const multiYear = firstDate.getUTCFullYear() !== lastDate.getUTCFullYear();
   const weekByStart = new Map(data.map((d) => [d.weekStart, d.week]));
 
+  const values = data
+    .map((d) => d[dataKey])
+    .filter((v): v is number => v !== null);
+  const dataMin = values.length > 0 ? Math.min(...values) : 0;
+  const dataMax = values.length > 0 ? Math.max(...values) : 0;
+  const yDomain = tightDomain(dataMin, dataMax);
+
   return (
     <div className="mb-4 rounded-2xl bg-surface-raised p-4 shadow-sm">
       <h2 className="mb-2 text-xs font-semibold text-ink-muted">{title}</h2>
@@ -80,7 +98,11 @@ function Chart({
               tickMargin={8}
               tickFormatter={(value) => formatTick(value, longRange, multiYear)}
             />
-            <YAxis tick={{ fontSize: 11, fill: "var(--color-ink-muted)" }} domain={["auto", "auto"]} />
+            <YAxis
+              tick={{ fontSize: 11, fill: "var(--color-ink-muted)" }}
+              domain={yDomain}
+              allowDecimals={false}
+            />
             <Tooltip
               formatter={(value) => [`${value} ${unit}`, title]}
               labelFormatter={(label) => weekByStart.get(label) ?? label}
