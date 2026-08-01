@@ -47,10 +47,10 @@ All core pages (Foods, Today, Weight, Stats, Settings) are built and deployed, w
 - **Recipes**: group foods eaten together under one name with fixed amounts; taggable by meal type for organization only. Name-searchable with toggleable meal-type filter chips. Today can log a whole recipe in one action, or turn an already-logged meal into a new recipe directly.
 - **Day Templates**: the tier above recipes — save/apply a full day's eating pattern (e.g. "Standard Monday") in one action, built from foods and/or recipes assigned to meal types. Also name-searchable.
 - **History** (Foods tab): search foods logged in the past whose `Food` was since deleted, and restore one back into the database from its most recent logged snapshot, re-linking its old entries.
-- **Today**: log grouped by meal type (5 types, breakfast to dinner, defaulting to the current time of day), with a date navigator (incl. jump-to-today) and inline amount editing (tap to edit, with quick +/- adjust buttons). Food/recipe selection uses a searchable combobox rather than a long native dropdown, for easier picking on mobile.
-- **Weight**: logged in 0.05kg increments with weekly averages broken down per day.
+- **Today**: log grouped by meal type (5 types, breakfast to dinner, defaulting to the current time of day), with a date navigator (incl. jump-to-today) and inline amount editing (tap to edit, with quick +/- adjust buttons). Food/recipe selection uses a searchable combobox rather than a long native dropdown, for easier picking on mobile. The dual progress ring shows a calories/protein "remaining" (or "over", flagged in red) readout beneath each ring's totals.
+- **Weight**: logged in 0.05kg increments with weekly averages broken down per day; each week shows a trend delta vs. the prior week, incomplete weeks get a day-count badge with ghost rows for missed days on expand (loggable inline, prefilled from the most recent entry), and logged entries support inline editing with quick-adjust steppers.
 - **Settings**: a Personal Info profile calculates suggested daily calorie/protein goals from body stats and activity level, alongside manual goal entry.
-- **Stats**: weekly averages against goals (excluding days with nothing logged), with a custom date range filter plus quick presets (last month/3 months/year).
+- **Stats**: weekly averages against goals (excluding days with nothing logged), with a custom date range filter plus quick presets (last month/3 months/year); the selected range persists to the URL (`?from=&to=`) so a refresh or shared link keeps it.
 
 Remaining candidate: a service worker for automatic Android install prompts (currently manual "Add to Home Screen" only, which is fine for now).
 
