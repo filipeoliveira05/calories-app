@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { logMeal, logRecipe } from "./actions";
 import { QuickAddFood } from "./QuickAddFood";
+import { SearchableSelect } from "@/components/SearchableSelect";
 import { MEAL_TYPES, MEAL_TYPE_LABELS, getDefaultMealType } from "@/lib/mealTypes";
 import { FOOD_CATEGORIES, FOOD_CATEGORY_LABELS } from "@/lib/foodCategories";
 import type { FoodCategory, MealType } from "@/generated/prisma/enums";
@@ -114,6 +115,23 @@ export function LogMealForm({
     })).filter((group) => group.foods.length > 0);
   }, [allFoods]);
 
+  const foodItems = useMemo(
+    () =>
+      foodsByCategory.flatMap(({ category, foods }) =>
+        foods.map((food) => ({
+          id: food.id,
+          label: food.name,
+          groupLabel: FOOD_CATEGORY_LABELS[category],
+        })),
+      ),
+    [foodsByCategory],
+  );
+
+  const recipeItems = useMemo(
+    () => recipes.map((recipe) => ({ id: recipe.id, label: recipe.name })),
+    [recipes],
+  );
+
   const amountNum = Number(amount);
   const grams =
     selectedFood?.isLoggedByUnit && selectedFood.gramsPerUnit
@@ -160,6 +178,14 @@ export function LogMealForm({
       ref={formRef}
       onSubmit={(e) => {
         e.preventDefault();
+        if (mode === "food" && !foodId) {
+          setError("Select a food");
+          return;
+        }
+        if (mode === "recipe" && !recipeId) {
+          setError("Select a recipe");
+          return;
+        }
         const formData = new FormData(e.currentTarget);
         setError(null);
         startTransition(async () => {
@@ -211,46 +237,27 @@ export function LogMealForm({
         <>
           <div className="grid grid-cols-2 gap-2">
             {mode === "food" ? (
-              <select
+              <SearchableSelect
                 name="foodId"
+                items={foodItems}
                 value={foodId}
-                onChange={(e) => {
-                  setFoodId(e.target.value);
+                onChange={(id) => {
+                  setFoodId(id);
                   setAmount("");
+                  if (id) requestAnimationFrame(() => amountInputRef.current?.focus());
                 }}
-                required
+                placeholder="Search food..."
                 className={inputClasses}
-              >
-                <option value="" disabled>
-                  Select food
-                </option>
-                {foodsByCategory.map(({ category, foods }) => (
-                  <optgroup key={category} label={FOOD_CATEGORY_LABELS[category]}>
-                    {foods.map((food) => (
-                      <option key={food.id} value={food.id}>
-                        {food.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+              />
             ) : (
-              <select
+              <SearchableSelect
                 name="recipeId"
+                items={recipeItems}
                 value={recipeId}
-                onChange={(e) => setRecipeId(e.target.value)}
-                required
+                onChange={setRecipeId}
+                placeholder="Search recipe..."
                 className={inputClasses}
-              >
-                <option value="" disabled>
-                  Select recipe
-                </option>
-                {recipes.map((recipe) => (
-                  <option key={recipe.id} value={recipe.id}>
-                    {recipe.name}
-                  </option>
-                ))}
-              </select>
+              />
             )}
             <select
               name="mealType"
