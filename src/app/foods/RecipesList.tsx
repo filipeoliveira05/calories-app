@@ -14,18 +14,44 @@ function sortKey(recipe: Recipe) {
 
 export function RecipesList({ recipes, foods }: { recipes: Recipe[]; foods: Food[] }) {
   const [filter, setFilter] = useState<MealType | "ALL">("ALL");
+  const [search, setSearch] = useState("");
 
   const filteredRecipes = useMemo(() => {
-    const filtered =
-      filter === "ALL" ? recipes : recipes.filter((r) => r.mealTypes.includes(filter));
+    const query = search.trim().toLowerCase();
+    const filtered = recipes.filter(
+      (r) =>
+        (filter === "ALL" || r.mealTypes.includes(filter)) &&
+        (query === "" || r.name.toLowerCase().includes(query)),
+    );
     return filtered
       .slice()
       .sort((a, b) => sortKey(a) - sortKey(b) || a.name.localeCompare(b.name));
-  }, [recipes, filter]);
+  }, [recipes, filter, search]);
 
   return (
     <>
       <AddRecipeForm foods={foods} />
+
+      {recipes.length > 0 && (
+        <div className="mb-3 relative">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search recipes..."
+            className="w-full rounded-xl border border-hairline bg-bg px-3 py-2 pr-8 text-sm"
+          />
+          {search !== "" && (
+            <button
+              onClick={() => setSearch("")}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-muted"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      )}
 
       {recipes.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5">
@@ -40,7 +66,7 @@ export function RecipesList({ recipes, foods }: { recipes: Recipe[]; foods: Food
           {MEAL_TYPES.map((mealType) => (
             <button
               key={mealType}
-              onClick={() => setFilter(mealType)}
+              onClick={() => setFilter((prev) => (prev === mealType ? "ALL" : mealType))}
               className={`rounded-full px-3 py-1 text-xs font-medium ${
                 filter === mealType ? "bg-sage text-white" : "bg-surface-raised text-ink-muted"
               }`}
@@ -54,7 +80,9 @@ export function RecipesList({ recipes, foods }: { recipes: Recipe[]; foods: Food
       {recipes.length === 0 ? (
         <p className="text-sm text-ink-muted">No recipes yet — add your first one above.</p>
       ) : filteredRecipes.length === 0 ? (
-        <p className="text-sm text-ink-muted">No recipes in this category.</p>
+        <p className="text-sm text-ink-muted">
+          {search !== "" ? "No recipes match your search." : "No recipes in this category."}
+        </p>
       ) : (
         filteredRecipes.map((recipe) => (
           <RecipeCard key={recipe.id} recipe={recipe} foods={foods} />
