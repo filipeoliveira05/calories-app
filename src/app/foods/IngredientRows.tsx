@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import { SearchableSelect } from "@/components/SearchableSelect";
 import { FOOD_CATEGORIES, FOOD_CATEGORY_LABELS } from "@/lib/foodCategories";
 import type { FoodCategory } from "@/generated/prisma/enums";
 
@@ -37,6 +39,17 @@ export function IngredientRows({
 }) {
   const grouped = foodsByCategory(foods);
   const foodMap = new Map(foods.map((f) => [f.id, f]));
+  const foodItems = useMemo(
+    () =>
+      grouped.flatMap(({ category, foods: catFoods }) =>
+        catFoods.map((f) => ({
+          id: f.id,
+          label: f.name,
+          groupLabel: FOOD_CATEGORY_LABELS[category],
+        })),
+      ),
+    [grouped],
+  );
 
   function update(key: string, patch: Partial<IngredientDraft>) {
     onChange(ingredients.map((ing) => (ing.key === key ? { ...ing, ...patch } : ing)));
@@ -56,26 +69,15 @@ export function IngredientRows({
         const food = foodMap.get(ing.foodId) ?? null;
         return (
           <div key={ing.key} className="flex items-center gap-2">
-            <select
+            <SearchableSelect
               name="ingredientFoodId"
+              items={foodItems}
               value={ing.foodId}
-              onChange={(e) => update(ing.key, { foodId: e.target.value })}
-              required
-              className={`min-w-0 flex-1 ${inputClasses}`}
-            >
-              <option value="" disabled>
-                Select food
-              </option>
-              {grouped.map(({ category, foods }) => (
-                <optgroup key={category} label={FOOD_CATEGORY_LABELS[category]}>
-                  {foods.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.name}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+              onChange={(id) => update(ing.key, { foodId: id })}
+              placeholder="Search food..."
+              className={inputClasses}
+              containerClassName="min-w-0 flex-1"
+            />
             <input
               name="ingredientAmount"
               type="number"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { SearchableSelect } from "@/components/SearchableSelect";
 import { foodsByCategory, type Food } from "./IngredientRows";
 import type { Recipe } from "./RecipeCard";
 import { MEAL_TYPES, MEAL_TYPE_LABELS } from "@/lib/mealTypes";
@@ -55,6 +56,21 @@ export function DayTemplateEntryEditor({
 
   const foodMap = useMemo(() => new Map(foods.map((f) => [f.id, f])), [foods]);
   const grouped = useMemo(() => foodsByCategory(foods), [foods]);
+  const foodItems = useMemo(
+    () =>
+      grouped.flatMap(({ category, foods: catFoods }) =>
+        catFoods.map((f) => ({
+          id: f.id,
+          label: f.name,
+          groupLabel: FOOD_CATEGORY_LABELS[category],
+        })),
+      ),
+    [grouped],
+  );
+  const recipeItems = useMemo(
+    () => recipes.map((r) => ({ id: r.id, label: r.name })),
+    [recipes],
+  );
   const selectedFood = foodMap.get(foodId) ?? null;
   const selectedRecipe = recipes.find((r) => r.id === recipeId) ?? null;
 
@@ -130,35 +146,21 @@ export function DayTemplateEntryEditor({
 
         <div className="grid grid-cols-2 gap-2">
           {mode === "food" ? (
-            <select
+            <SearchableSelect
+              items={foodItems}
               value={foodId}
-              onChange={(e) => setFoodId(e.target.value)}
+              onChange={setFoodId}
+              placeholder="Search food..."
               className={inputClasses}
-            >
-              <option value="">Select food</option>
-              {grouped.map(({ category, foods: catFoods }) => (
-                <optgroup key={category} label={FOOD_CATEGORY_LABELS[category]}>
-                  {catFoods.map((f) => (
-                    <option key={f.id} value={f.id}>
-                      {f.name}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
+            />
           ) : (
-            <select
+            <SearchableSelect
+              items={recipeItems}
               value={recipeId}
-              onChange={(e) => setRecipeId(e.target.value)}
+              onChange={setRecipeId}
+              placeholder="Search recipe..."
               className={inputClasses}
-            >
-              <option value="">Select recipe</option>
-              {recipes.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name}
-                </option>
-              ))}
-            </select>
+            />
           )}
           <select
             value={mealType}

@@ -15,13 +15,15 @@ export function SearchableSelect({
   name,
   placeholder,
   className,
+  containerClassName,
 }: {
   items: SearchableSelectItem[];
   value: string;
   onChange: (id: string) => void;
-  name: string;
+  name?: string;
   placeholder: string;
   className?: string;
+  containerClassName?: string;
 }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -87,8 +89,8 @@ export function SearchableSelect({
   }
 
   return (
-    <div className="relative" ref={containerRef}>
-      <input type="hidden" name={name} value={value} />
+    <div className={`relative ${containerClassName ?? ""}`} ref={containerRef}>
+      {name && <input type="hidden" name={name} value={value} />}
       <input
         type="text"
         value={displayValue}
