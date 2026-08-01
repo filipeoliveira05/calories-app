@@ -50,7 +50,7 @@ export function AddDayTemplateForm({ foods, recipes }: { foods: Food[]; recipes:
           <button
             type="button"
             onClick={() => setEntries([])}
-            className="rounded-xl px-3 py-2.5 text-sm font-medium text-ink-muted"
+            className="rounded-xl px-3 py-2.5 text-sm font-medium text-danger hover:bg-terracotta-soft"
           >
             Cancel
           </button>

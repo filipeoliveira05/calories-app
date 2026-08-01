@@ -18,6 +18,11 @@ export function AddRecipeForm({ foods }: { foods: Food[] }) {
   const totals = ingredientTotals(foods, ingredients);
   const hasPreview = ingredients.some((i) => i.foodId && Number(i.amount) > 0);
 
+  function resetForm() {
+    formRef.current?.reset();
+    setIngredients([]);
+  }
+
   return (
     <form
       ref={formRef}
@@ -32,8 +37,7 @@ export function AddRecipeForm({ foods }: { foods: Food[] }) {
           try {
             const name = formData.get("name");
             await createRecipe(formData);
-            formRef.current?.reset();
-            setIngredients([]);
+            resetForm();
             setSuccess(
               typeof name === "string" && name ? `"${name}" added` : "Recipe added"
             );
@@ -58,6 +62,15 @@ export function AddRecipeForm({ foods }: { foods: Food[] }) {
           <span className="text-sm text-ink-muted">
             → {totals.calories.toFixed(0)} kcal, {totals.protein.toFixed(1)} g protein
           </span>
+        )}
+        {ingredients.length > 0 && (
+          <button
+            type="button"
+            onClick={resetForm}
+            className="rounded-xl px-3 py-2.5 text-sm font-medium text-danger hover:bg-terracotta-soft"
+          >
+            Cancel
+          </button>
         )}
         <button
           type="submit"
