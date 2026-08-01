@@ -18,9 +18,16 @@ export default async function WeightPage() {
       average:
         weekEntries.reduce((sum, e) => sum + e.weightKg, 0) /
         weekEntries.length,
-      days: weekEntries.map((e) => ({ date: e.date, weightKg: e.weightKg })),
+      days: weekEntries.map((e) => ({ id: e.id, date: e.date, weightKg: e.weightKg })),
     }))
     .sort((a, b) => b.weekStart.getTime() - a.weekStart.getTime());
+
+  const trendDelta =
+    weeklyAverages.length >= 2
+      ? weeklyAverages[0].average - weeklyAverages[1].average
+      : null;
+
+  const latestWeightKg = entries[0]?.weightKg ?? 0;
 
   return (
     <div>
@@ -31,15 +38,25 @@ export default async function WeightPage() {
 
       {weeklyAverages.length > 0 && (
         <div className="mb-5 rounded-2xl bg-surface-raised p-3 shadow-sm">
-          <h2 className="mb-1 px-1 text-xs font-semibold text-ink-muted">
-            Weekly average
-          </h2>
+          <div className="mb-1 flex items-center justify-between px-1">
+            <h2 className="text-xs font-semibold text-ink-muted">Weekly average</h2>
+            {trendDelta !== null && (
+              <span className="text-xs font-semibold tabular-nums text-gold">
+                {Math.abs(trendDelta) < 0.005
+                  ? "— 0.00 kg"
+                  : trendDelta > 0
+                    ? `▲ +${trendDelta.toFixed(2)} kg`
+                    : `▼ ${trendDelta.toFixed(2)} kg`}
+              </span>
+            )}
+          </div>
           {weeklyAverages.map((w) => (
             <WeeklyAverageRow
               key={w.weekStart.toISOString()}
               weekStart={w.weekStart}
               average={w.average}
               days={w.days}
+              latestWeightKg={latestWeightKg}
             />
           ))}
         </div>

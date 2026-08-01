@@ -32,6 +32,22 @@ export function formatDayLabel(date: Date): string {
   });
 }
 
+/** Whether the week starting `weekStart` (Mon–Sun) has fully elapsed. */
+export function isWeekComplete(weekStart: Date): boolean {
+  const weekEnd = new Date(weekStart);
+  weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+  return weekEnd < new Date();
+}
+
+/** The 7 UTC-midnight dates (Mon–Sun) belonging to the week starting `weekStart`. */
+export function getWeekDays(weekStart: Date): Date[] {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setUTCDate(d.getUTCDate() + i);
+    return d;
+  });
+}
+
 /**
  * Average weight of the most recent complete week (Mon–Sun fully in the
  * past). Falls back to the latest week with any entries at all (even if
@@ -43,16 +59,13 @@ export function getLatestWeeklyAverageWeight(
   if (entries.length === 0) return null;
 
   const groups = groupByWeek(entries, (e) => e.date);
-  const today = new Date();
 
   const weekAverages = [...groups.entries()]
     .map(([weekKey, weights]) => {
       const weekStart = new Date(weekKey);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
       return {
         weekStart,
-        isComplete: weekEnd < today,
+        isComplete: isWeekComplete(weekStart),
         average: weights.reduce((s, w) => s + w.weightKg, 0) / weights.length,
       };
     })

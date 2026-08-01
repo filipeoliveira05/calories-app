@@ -1,51 +1,46 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { deleteWeightEntry, updateWeightEntry } from "./actions";
+import { logWeightForDate } from "./actions";
 
 const ADJUST_STEPS = [-0.25, -0.05, 0.05, 0.25];
 
-export function WeightEntryRow({
-  id,
+export function MissingDayRow({
   date,
-  weightKg,
-  compact = false,
+  label,
+  defaultWeightKg,
 }: {
-  id: string;
   date: string;
-  weightKg: number;
-  compact?: boolean;
+  label: string;
+  defaultWeightKg: number;
 }) {
   const [isPending, startTransition] = useTransition();
-  const [isEditing, setIsEditing] = useState(false);
-  const [pendingWeight, setPendingWeight] = useState(weightKg);
+  const [isAdding, setIsAdding] = useState(false);
+  const [pendingWeight, setPendingWeight] = useState(defaultWeightKg);
   const [error, setError] = useState<string | null>(null);
 
-  const textSize = compact ? "text-xs" : "text-sm";
-  const padding = compact ? "px-1 py-1" : "px-1 py-2";
-
-  function startEditing() {
-    setPendingWeight(weightKg);
+  function startAdding() {
+    setPendingWeight(defaultWeightKg);
     setError(null);
-    setIsEditing(true);
+    setIsAdding(true);
   }
 
   function save() {
     startTransition(async () => {
       try {
-        await updateWeightEntry(id, pendingWeight);
-        setIsEditing(false);
+        await logWeightForDate(date, pendingWeight);
+        setIsAdding(false);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to update weight");
+        setError(e instanceof Error ? e.message : "Failed to log weight");
       }
     });
   }
 
-  if (isEditing) {
+  if (isAdding) {
     return (
-      <div className={`flex flex-col gap-1.5 border-b border-hairline ${padding} ${textSize} last:border-b-0`}>
+      <div className="flex flex-col gap-1.5 px-1 py-1 text-xs">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-ink-muted">{date}</span>
+          <span className="text-ink-muted">{label}</span>
           <div className="flex flex-wrap items-center justify-end gap-2">
             {ADJUST_STEPS.map((delta) => {
               const positive = delta > 0;
@@ -78,7 +73,7 @@ export function WeightEntryRow({
             <div className="flex gap-1">
               <button
                 type="button"
-                onClick={() => setIsEditing(false)}
+                onClick={() => setIsAdding(false)}
                 className="rounded-lg px-2 py-1 text-xs font-medium text-ink-muted"
               >
                 Cancel
@@ -112,23 +107,16 @@ export function WeightEntryRow({
   }
 
   return (
-    <div className={`flex items-center justify-between border-b border-hairline ${padding} ${textSize} last:border-b-0`}>
-      <span className="text-ink-muted">{date}</span>
+    <div className="flex items-center justify-between px-1 py-1 text-xs">
+      <span className="text-ink-muted">{label}</span>
       <div className="flex items-center gap-3">
-        <span className="font-medium tabular-nums">{weightKg.toFixed(2)} kg</span>
+        <span className="text-ink-muted">No entry</span>
         <button
-          onClick={startEditing}
+          onClick={startAdding}
           disabled={isPending}
-          className="text-xs font-medium text-ink-muted hover:underline disabled:opacity-50"
+          className="font-medium text-sage hover:underline disabled:opacity-50"
         >
-          Edit
-        </button>
-        <button
-          onClick={() => startTransition(() => deleteWeightEntry(id))}
-          disabled={isPending}
-          className="text-xs font-medium text-danger hover:underline disabled:opacity-50"
-        >
-          Remove
+          Add
         </button>
       </div>
     </div>
