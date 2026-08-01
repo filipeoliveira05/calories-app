@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getWeekStart, formatWeekLabel, groupByWeek } from "@/lib/weeks";
+import { formatWeekLabel, groupByWeek } from "@/lib/weeks";
 import { StatsCharts } from "./StatsCharts";
 
 export const dynamic = "force-dynamic";
