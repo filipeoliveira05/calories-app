@@ -6,6 +6,15 @@ import { dateOnlyFromParam } from "@/lib/dateOnly";
 import { MEAL_TYPES } from "@/lib/mealTypes";
 import type { MealType } from "@/generated/prisma/enums";
 
+/** Next sortOrder for a date+mealType group, so new entries land at the bottom. */
+async function nextSortOrder(date: Date, mealType: MealType): Promise<number> {
+  const result = await prisma.mealEntry.aggregate({
+    where: { date, mealType },
+    _max: { sortOrder: true },
+  });
+  return (result._max.sortOrder ?? -1) + 1;
+}
+
 export async function logMeal(formData: FormData) {
   const foodId = String(formData.get("foodId") ?? "");
   const mealType = String(formData.get("mealType") ?? "BREAKFAST") as MealType;
@@ -42,6 +51,7 @@ export async function logMeal(formData: FormData) {
       quantity,
       unitLabel: food.isLoggedByUnit ? food.unitLabel : null,
       gramsPerUnit: food.isLoggedByUnit ? food.gramsPerUnit : null,
+      sortOrder: await nextSortOrder(date, mealType),
     },
   });
 
@@ -61,9 +71,10 @@ export async function logRecipe(formData: FormData) {
   if (recipe.ingredients.length === 0) throw new Error("Recipe has no ingredients");
 
   const date = dateOnlyFromParam(String(formData.get("date") ?? ""));
+  const baseSortOrder = await nextSortOrder(date, mealType);
 
   await prisma.$transaction(
-    recipe.ingredients.map((ri) =>
+    recipe.ingredients.map((ri, index) =>
       prisma.mealEntry.create({
         data: {
           date,
@@ -78,6 +89,7 @@ export async function logRecipe(formData: FormData) {
           quantity: ri.food.isLoggedByUnit ? ri.quantity : null,
           unitLabel: ri.food.isLoggedByUnit ? ri.food.unitLabel : null,
           gramsPerUnit: ri.food.isLoggedByUnit ? ri.food.gramsPerUnit : null,
+          sortOrder: baseSortOrder + index,
         },
       }),
     ),
@@ -94,6 +106,15 @@ export async function deleteMealEntry(id: string) {
 export async function deleteMealEntries(ids: string[]) {
   if (ids.length === 0) return;
   await prisma.mealEntry.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath("/");
+}
+
+export async function reorderMealEntries(orderedIds: string[]) {
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.mealEntry.update({ where: { id }, data: { sortOrder: index } }),
+    ),
+  );
   revalidatePath("/");
 }
 
@@ -132,9 +153,16 @@ export async function applyDayTemplate(formData: FormData) {
 
   const date = dateOnlyFromParam(String(formData.get("date") ?? ""));
 
+  const nextSortOrderByMealType = new Map<MealType, number>();
+  for (const mealType of new Set(template.entries.map((te) => te.mealType))) {
+    nextSortOrderByMealType.set(mealType, await nextSortOrder(date, mealType));
+  }
+
   await prisma.$transaction(
-    template.entries.map((te) =>
-      prisma.mealEntry.create({
+    template.entries.map((te) => {
+      const sortOrder = nextSortOrderByMealType.get(te.mealType)!;
+      nextSortOrderByMealType.set(te.mealType, sortOrder + 1);
+      return prisma.mealEntry.create({
         data: {
           date,
           mealType: te.mealType,
@@ -146,9 +174,10 @@ export async function applyDayTemplate(formData: FormData) {
           quantity: te.food.isLoggedByUnit ? te.quantity : null,
           unitLabel: te.food.isLoggedByUnit ? te.food.unitLabel : null,
           gramsPerUnit: te.food.isLoggedByUnit ? te.food.gramsPerUnit : null,
+          sortOrder,
         },
-      }),
-    ),
+      });
+    }),
   );
 
   revalidatePath("/");

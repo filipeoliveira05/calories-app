@@ -113,6 +113,9 @@ model MealEntry {
   mealType  MealType @default(BREAKFAST)
   grams     Float
 
+  // Position within its date+mealType group, for manual drag-reordering on Today.
+  sortOrder Int @default(0)
+
   // Snapshot of the food's nutrition values at the time of logging,
   // so later edits to Food don't retroactively change past entries.
   foodName        String

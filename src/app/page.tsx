@@ -27,7 +27,7 @@ export default async function TodayPage({
     prisma.dayTemplate.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.mealEntry.findMany({
       where: { date: selectedDate },
-      orderBy: { createdAt: "asc" },
+      orderBy: [{ mealType: "asc" }, { sortOrder: "asc" }],
     }),
     prisma.goals.findUnique({ where: { id: 1 } }),
   ]);

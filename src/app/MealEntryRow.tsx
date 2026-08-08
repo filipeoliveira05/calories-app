@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   deleteMealEntry,
   updateMealEntryGrams,
@@ -37,6 +39,19 @@ export function MealEntryRow({
 
   const steps = isUnitBased ? [-1, 1] : [-50, -10, 10, 50];
 
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: entry.id,
+  });
+  const dragStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : undefined,
+    zIndex: isDragging ? 1 : undefined,
+    position: "relative" as const,
+  };
+  // Whole row is a drag handle except the checkbox, amount control, and Remove button.
+  const stopDragPropagation = (e: React.PointerEvent) => e.stopPropagation();
+
   function save() {
     const value = Number(amount);
     const originalValue = isUnitBased ? entry.quantity! : entry.grams;
@@ -62,13 +77,20 @@ export function MealEntryRow({
   }
 
   return (
-    <div className="border-b border-hairline py-2 text-sm last:border-b-0">
+    <div
+      ref={setNodeRef}
+      style={dragStyle}
+      {...attributes}
+      {...listeners}
+      className="border-b border-hairline py-2 text-sm last:border-b-0"
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <input
             type="checkbox"
             checked={selected}
             onChange={() => onToggle(entry.id)}
+            onPointerDown={stopDragPropagation}
             className="mr-2 h-4 w-4 shrink-0 accent-sage"
             aria-label={`Select ${entry.foodName}`}
           />
@@ -83,6 +105,7 @@ export function MealEntryRow({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               onBlur={save}
+              onPointerDown={stopDragPropagation}
               onKeyDown={(e) => {
                 if (e.key === "Enter") save();
                 if (e.key === "Escape") {
@@ -95,6 +118,7 @@ export function MealEntryRow({
           ) : (
             <button
               onClick={() => setIsEditing(true)}
+              onPointerDown={stopDragPropagation}
               className="ml-2 text-ink-muted underline decoration-dotted underline-offset-2"
             >
               {isUnitBased ? `${entry.quantity} ${entry.unitLabel}` : `${entry.grams}g`}
@@ -108,6 +132,7 @@ export function MealEntryRow({
             </span>
             <button
               onClick={() => startTransition(() => deleteMealEntry(entry.id))}
+              onPointerDown={stopDragPropagation}
               disabled={isPending}
               className="text-xs font-medium text-danger hover:underline disabled:opacity-50"
             >
@@ -128,6 +153,7 @@ export function MealEntryRow({
                 key={step}
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
+                onPointerDown={stopDragPropagation}
                 onClick={() => adjust(step)}
                 className={`rounded-lg px-2 py-0.5 text-xs font-medium tabular-nums ${colorClasses}`}
               >
