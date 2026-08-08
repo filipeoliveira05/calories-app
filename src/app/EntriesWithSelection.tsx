@@ -77,7 +77,7 @@ export function EntriesWithSelection({ entries, date }: { entries: Entry[]; date
           className="fixed inset-x-0 z-10 flex justify-center px-4"
           style={{ bottom: "calc(4.75rem + env(safe-area-inset-bottom))" }}
         >
-          <div className="flex w-full max-w-2xl items-center justify-between gap-3 rounded-2xl bg-surface-raised px-4 py-3 shadow-sm">
+          <div className="flex w-full max-w-2xl items-center justify-between gap-3 rounded-2xl border-2 border-ink bg-surface-raised px-4 py-3 shadow-lg">
             <span className="text-sm tabular-nums text-ink-muted">
               {selectedEntries.length} selected · {selectedTotals.calories.toFixed(0)} kcal ·{" "}
               {selectedTotals.protein.toFixed(1)}g protein
