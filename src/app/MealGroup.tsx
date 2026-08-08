@@ -18,10 +18,14 @@ export function MealGroup({
   mealType,
   entries,
   date,
+  selectedIds,
+  onToggle,
 }: {
   mealType: MealType;
   entries: Entry[];
   date: string;
+  selectedIds: Set<string>;
+  onToggle: (id: string) => void;
 }) {
   const totals = entries.reduce(
     (acc, e) => {
@@ -39,7 +43,12 @@ export function MealGroup({
       </div>
       <div className="rounded-2xl rounded-tl-none bg-surface-raised p-3 shadow-sm">
         {entries.map((entry) => (
-          <MealEntryRow key={entry.id} entry={entry} />
+          <MealEntryRow
+            key={entry.id}
+            entry={entry}
+            selected={selectedIds.has(entry.id)}
+            onToggle={onToggle}
+          />
         ))}
         <div className="flex flex-wrap items-center gap-2 border-t border-hairline pt-2 text-xs text-ink-muted">
           <SaveMealAsRecipe mealType={mealType} date={date} />

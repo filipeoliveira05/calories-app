@@ -19,7 +19,15 @@ type Entry = {
   protein: number;
 };
 
-export function MealEntryRow({ entry }: { entry: Entry }) {
+export function MealEntryRow({
+  entry,
+  selected,
+  onToggle,
+}: {
+  entry: Entry;
+  selected: boolean;
+  onToggle: (id: string) => void;
+}) {
   const [isPending, startTransition] = useTransition();
   const [isEditing, setIsEditing] = useState(false);
   const isUnitBased = entry.quantity != null;
@@ -56,7 +64,14 @@ export function MealEntryRow({ entry }: { entry: Entry }) {
   return (
     <div className="border-b border-hairline py-2 text-sm last:border-b-0">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onToggle(entry.id)}
+            className="mr-2 h-4 w-4 shrink-0 accent-sage"
+            aria-label={`Select ${entry.foodName}`}
+          />
           <span className="font-medium">{entry.foodName}</span>
           {isEditing ? (
             <input

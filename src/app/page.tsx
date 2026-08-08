@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { LogMealForm } from "./LogMealForm";
-import { MealGroup } from "./MealGroup";
+import { EntriesWithSelection } from "./EntriesWithSelection";
 import { DateNav } from "./DateNav";
 import { DayTools } from "./DayTools";
-import { MEAL_TYPES } from "@/lib/mealTypes";
 import { ProgressRing } from "@/components/ProgressRing";
 import { dateOnlyFromParam, dateParam, addDays, isSameDate } from "@/lib/dateOnly";
 
@@ -130,33 +129,20 @@ export default async function TodayPage({
       {entries.length === 0 ? (
         <p className="text-sm text-ink-muted">No meals logged this day yet.</p>
       ) : (
-        <div>
-          {MEAL_TYPES.map((mealType) => {
-            const mealEntries = entries
-              .filter((entry) => entry.mealType === mealType)
-              .map((entry) => ({
-                id: entry.id,
-                foodName: entry.foodName,
-                grams: entry.grams,
-                quantity: entry.quantity,
-                unitLabel: entry.unitLabel,
-                mealType: entry.mealType,
-                calories: (entry.caloriesPer100g * entry.grams) / 100,
-                protein: (entry.proteinPer100g * entry.grams) / 100,
-              }));
-
-            if (mealEntries.length === 0) return null;
-
-            return (
-              <MealGroup
-                key={mealType}
-                mealType={mealType}
-                entries={mealEntries}
-                date={dateParam(selectedDate)}
-              />
-            );
-          })}
-        </div>
+        <EntriesWithSelection
+          key={dateParam(selectedDate)}
+          date={dateParam(selectedDate)}
+          entries={entries.map((entry) => ({
+            id: entry.id,
+            foodName: entry.foodName,
+            grams: entry.grams,
+            quantity: entry.quantity,
+            unitLabel: entry.unitLabel,
+            mealType: entry.mealType,
+            calories: (entry.caloriesPer100g * entry.grams) / 100,
+            protein: (entry.proteinPer100g * entry.grams) / 100,
+          }))}
+        />
       )}
     </div>
   );
